@@ -1,13 +1,227 @@
-body {
-  margin: 0;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
-    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
-    sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
+html {
+  font-size: 14px;
+  position: relative;
+  min-height: 100%;
 }
 
-code {
-  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
-    monospace;
+/* Media query to adjust font size on larger screens */
+@media (min-width: 768px) {
+  html {
+    font-size: 16px;
+  }
+}
+
+body{
+  background: #1D1D1D !important;
+  color: #f6f6f6 !important;
+}
+
+i:active, form:active {
+  outline: none;
+}
+
+.btn:focus, .btn:active:focus, .btn-link.nav-link:focus, .form-control:focus, .form-check-input:focus {
+  box-shadow: none !important;
+  border: none !important;
+}
+
+/* Buttons styling */
+.loginbtn-primary, .loginbtn-secondary {
+  border: none !important;
+  transition: background-color 0.3s ease, box-shadow 0.3s ease !important; /* Smooth transition for hover effect */
+}
+
+.loginbtn-primary {
+  background-color: #7CBEEA !important;
+  box-shadow: 0 0.1em 0.8em 0 #7CBEEA !important;
+  color: #212529 !important;
+}
+
+.loginbtn-primary:hover {
+  background-color: #76b5e0 !important; /* Slightly diff shade for hover */
+  box-shadow: 0 0.2em 1.2em 0 #7CBEEA !important; /* Slightly larger shadow for hover */
+}
+
+.btn-danger {
+  box-shadow: 0 0.1em 0.8em 0 #DC3444 !important;
+}
+
+.btn-danger:hover {
+  box-shadow: 0 0.1em 0.8em 0 #de3c4c !important;
+}
+
+.loginbtn-secondary {
+  background-color: #ebebeb !important;
+  color: #212529 !important;
+}
+
+.loginbtn-secondary:hover {
+  background-color: #fcfcfc !important; /* Lighten to white for hover */
+  box-shadow: 0 0.18em 0.9em 0 rgba(250, 250, 250, 0.7) !important; /* Subtle shadow for lifted effect */
+}
+
+.nav-link {
+  color: #ffffff !important;
+}
+
+.form-label {
+  color: #212529;
+}
+
+/* Force remove the outline on the hamburger button in bootstrap library */
+.navbar-toggler {
+  outline: none !important;
+  border: none !important;
+  box-shadow: none !important;
+  background-color: transparent !important; /* Optional: Ensure no background color */
+}
+
+/* Adjust the bi-list icon as needed */
+.navbar-toggler .bi-list {
+  font-size: 1.5rem; /* Adjust icon size */
+  color: #ffffff; /* Set icon color to white */
+  transition: color 0.2s ease-in-out;
+}
+
+/* Hover effect for the icon */
+.navbar-toggler:hover .bi-list {
+  color: #efefef; /* Change icon color on hover */
+}
+
+/* Remove default margins and padding */
+.post-container {
+  position: relative;
+}
+
+/* Overlay Elements */
+.overlay-elements {
+  position: absolute;
+  bottom: 10px;
+  left: 0;
+  right: 0;
+  display: flex;
+  justify-content: space-between;
+  padding: 0 15px;
+  color: #fff;
+}
+
+/* Profile Info */
+.profile-info {
+  display: flex;
+  align-items: center;
+  z-index: 2;
+}
+
+.profile-picture {
+  width: 40px;
+  height: 40px;
+  object-fit: cover;
+  margin-right: 10px;
+  border: 2px solid #fff;
+}
+
+.username {
+  font-weight: bold;
+  text-shadow: 1px 1px 2px rgba(0,0,0,0.7);
+}
+
+/* Post Actions */
+.post-actions {
+  display: flex;
+  align-items: start;
+  z-index: 2;
+  position: absolute;
+  right: 0;
+  bottom: 1px;
+}
+
+.post-actions .btn {
+  color: #fff;
+  background: transparent;
+  border: none;
+  padding: 0 5px;
+}
+
+.post-actions .btn i {
+  font-size: 1.5rem;
+  text-shadow: 1px 1px 2px rgba(0,0,0,0.7);
+}
+
+.post-actions p {
+  margin: 0;
+}
+
+/* Content and Comments */
+.post-content {
+  padding: 0 15px;
+}
+
+.post-content p {
+  margin: 0;
+}
+
+.list-group-item {
+  background-color: inherit;
+  color: #ffffff;
+  border-color: #ffffff;
+}
+
+.post-options {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  z-index: 2;
+}
+
+#post-profile-pic {
+  height: 3.5em !important;
+  width: 3.5em !important;
+}
+
+/* Media query to scale the profile image down on smaller screens */
+@media (max-width: 1000px) {
+  .profile-picture, .bg-secondary {
+    width: 150px !important;
+    height: 150px !important;
+    margin-right: 1em !important;
+  }
+
+  /* Adjusting profile posts section for medium screens */
+  .profile-page .profile-posts {
+    padding: 0 30px;
+    max-width: 95%;
+  }
+}
+
+@media (max-width: 768px) {
+  .profile-picture, .bg-secondary {
+    width: 120px !important;
+    height: 120px !important;
+    margin-right: 1em !important;
+  }
+
+  /* Adjusting profile posts section for small screens */
+  .profile-page .profile-posts {
+    padding: 0 20px;
+    max-width: 90%;
+  }
+}
+
+/* Adjusting profile posts section for larger screens */
+@media (min-width: 992px) {
+  .profile-page .profile-posts {
+    padding: 0 75px;
+    max-width: 100%;
+  }
+}
+
+/* More specific media query to hide icon section on smaller screens */
+@media screen and (max-width: 767px) {
+  .icon-section {
+    display: none !important;
+  }
+}
+
+.modal-content {
+  background-color: #212529 !important;
 }
