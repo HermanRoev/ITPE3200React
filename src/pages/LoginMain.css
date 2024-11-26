@@ -1,0 +1,12 @@
+.loginbtn-primary, .loginbtn-secondary {
+    width: 30% !important;
+}
+
+.row {
+    justify-content: center !important;
+}
+
+/* Remove default navbar or footer if globally applied */
+.navbar, .footer {
+    display: none !important;
+}

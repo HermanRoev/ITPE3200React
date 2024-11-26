@@ -1,27 +1,21 @@
-import React from "react";
-import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
-import Container from "react-bootstrap/Container";
-import SidebarMenu from "./components/SidebarMenu";
-import HomePage from "./pages/HomePage";
-import PostComponentTest from "./components/PostComponentTest";
+import React from 'react';
+import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
+import HomePage from './pages/HomePage';
+import LoginMain from './pages/LoginMain';
+import LoginPage from './pages/LoginPage';
+import RegisterPage from './pages/RegisterPage';
 
-function App() {
+const App: React.FC = () => {
     return (
         <Router>
-            <div className="d-flex">
-                {/* Sidebar Menu */}
-                <SidebarMenu />
-
-                {/* Main Content */}
-                <Container className="flex-grow-1 p-4">
-                    <Routes>
-                        <Route path="/" element={<HomePage />} />
-                    </Routes>
-                    <PostComponentTest />
-                </Container>
-            </div>
+            <Routes>
+                <Route path="/" element={<HomePage />} />
+                <Route path="/loginmain" element={<LoginMain />} />
+                <Route path="/login" element={<LoginPage />} />
+                <Route path="/register" element={<RegisterPage />} />
+            </Routes>
         </Router>
     );
-}
+};
 
 export default App;

@@ -1,0 +1,13 @@
+/* RegisterPage.css */
+.colored-text {
+    color: #7CBEEA !important;
+}
+
+.colored-text:hover {
+    color: #76b5e0 !important;
+}
+
+/* Optional: Override for specific form elements */
+#registerForm .form-control {
+    border-radius: 0.25rem;
+}

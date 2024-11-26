@@ -1,0 +1,19 @@
+/* Align row content to center */
+.row {
+    justify-content: center !important;
+}
+
+/* Adjust link color for the "Forgot your password?" link */
+.colored-text {
+    color: #7CBEEA !important;
+    text-decoration: none !important;
+}
+
+.colored-text:hover {
+    color: #76b5e0 !important;
+}
+
+/* Remove default navbar or footer if globally applied */
+.navbar, .footer {
+    display: none !important;
+}

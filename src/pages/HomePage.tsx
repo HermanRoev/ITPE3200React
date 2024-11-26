@@ -1,9 +1,11 @@
 import React from 'react';
 
-const HomePage = () => {
+const HomePage: React.FC = () => {
     return (
-        <div className="text-center">
-            <h1 className="display-4">Kage er kult :)</h1>
+        <div className="d-flex justify-content-center" style={{width: "100vw"}}>
+            <h1 className="display-4">
+                Home Page
+            </h1>
         </div>
     );
 };
