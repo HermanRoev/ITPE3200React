@@ -1,0 +1,19 @@
+.navbar {
+    box-shadow: 0 6px 8px -4px lightblue;
+    background-color: #1a1a1a;
+}
+
+.nav-link {
+    color: #ffffff !important;
+    transition: color 0.3s ease;
+}
+
+.nav-link:hover {
+    color: #7cbeea !important;
+}
+
+.navbar-brand img {
+    height: 1.4em;
+    vertical-align: middle;
+    margin-right: 5px;
+}

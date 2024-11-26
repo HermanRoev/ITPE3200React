@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom'; // Import Link
-import './LoginPage.css'; // Minimal overrides for custom styling
+import './LoginPage.css'; // Custom styling
 
 const LoginPage: React.FC = () => {
     return (
