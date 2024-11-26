@@ -1,9 +1,9 @@
 import React from "react";
 import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
 import Container from "react-bootstrap/Container";
-import HomePage from "./Home/Index";
-import ProfilePage from "./Profile/Profile";
-import SidebarMenu from "./shared/SidebarMenu";
+import SidebarMenu from "./components/SidebarMenu";
+import HomePage from "./pages/HomePage";
+import PostComponentTest from "./components/PostComponentTest";
 
 function App() {
     return (
@@ -16,8 +16,8 @@ function App() {
                 <Container className="flex-grow-1 p-4">
                     <Routes>
                         <Route path="/" element={<HomePage />} />
-                        <Route path="/Profile" element={<ProfilePage />} />
                     </Routes>
+                    <PostComponentTest />
                 </Container>
             </div>
         </Router>
