@@ -1,45 +1,44 @@
-import React, { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom'; // Import Link and useNavigate
-import './LoginPage.css'; // Custom styling
+import React, { useState } from "react";
+import { Link, useNavigate } from "react-router-dom"; // Import Link and useNavigate
+import "./LoginPage.css"; // Custom styling
 
 const LoginPage: React.FC = () => {
-    // State to manage form inputs and error messages
-    const [email, setEmail] = useState('');
-    const [password, setPassword] = useState('');
-    const [errorMessage, setErrorMessage] = useState('');
+    const [emailOrUsername, setEmailOrUsername] = useState(""); // State for email/username input
+    const [password, setPassword] = useState(""); // State for password input
+    const [errorMessage, setErrorMessage] = useState(""); // State for error messages
     const navigate = useNavigate();
 
     const handleLogin = async (e: React.FormEvent) => {
-        e.preventDefault(); // Prevent the form from refreshing the page
+        e.preventDefault(); // Prevent the default form submission
 
         try {
-            // Send a POST request to the API
-            const response = await fetch('http://localhost:5094/Auth/login', {
-                method: 'POST',
+            // Send the login request to the backend
+            const response = await fetch("http://localhost:5094/Auth/login", {
+                method: "POST",
                 headers: {
-                    'Content-Type': 'application/json',
+                    "Content-Type": "application/json",
                 },
                 body: JSON.stringify({
-                    email: email,
-                    password: password,
+                    EmailOrUsername: emailOrUsername, // Matches the backend DTO
+                    Password: password,
                 }),
             });
 
             if (response.ok) {
                 const data = await response.json();
-                // Store the token in localStorage
-                localStorage.setItem('token', data.token);
+                // Store the JWT token in localStorage
+                localStorage.setItem("token", data.token);
 
-                // Redirect the user to the homepage or another protected route
-                navigate('/');
+                // Redirect to the homepage (or any protected route)
+                navigate("/");
             } else {
-                // If the response is not ok, handle the error
+                // Handle errors from the backend
                 const errorData = await response.json();
-                setErrorMessage(errorData.message || 'Login failed. Please try again.');
+                setErrorMessage(errorData.message || "Login failed. Please try again.");
             }
         } catch (error) {
-            // Handle network or unexpected errors
-            setErrorMessage('An unexpected error occurred. Please try again later.');
+            // Handle network errors
+            setErrorMessage("An unexpected error occurred. Please try again later.");
         }
     };
 
@@ -55,9 +54,8 @@ const LoginPage: React.FC = () => {
 
             {/* Main Content */}
             <div className="col-md-8 d-flex flex-column text-center justify-content-center align-items-center w-100">
-                {/* Header */}
                 <h2 className="mb-3 colored-text">Login Here</h2>
-                <p className="lead mb-4">Welcome back you’ve been missed!</p>
+                <p className="lead mb-4">Welcome back! You’ve been missed!</p>
 
                 {/* Error Message */}
                 {errorMessage && (
@@ -68,25 +66,23 @@ const LoginPage: React.FC = () => {
 
                 {/* Login Form */}
                 <form
-                    id="account"
-                    method="post"
                     className="card bg-transparent text-dark p-4 border-0 w-100"
                     style={{ maxWidth: "500px", width: "100%" }}
-                    onSubmit={handleLogin} // Attach the handleLogin function to the form
+                    onSubmit={handleLogin} // Attach the login handler
                 >
-                    {/* Email Input */}
+                    {/* Email or Username Input */}
                     <div className="form-floating mb-3">
                         <input
-                            type="email"
+                            type="text"
                             className="form-control"
-                            id="email"
-                            placeholder="Email"
-                            value={email}
-                            onChange={(e) => setEmail(e.target.value)} // Update state
-                            autoComplete="email"
-                            aria-required="true"
+                            id="emailOrUsername"
+                            placeholder="Email or Username"
+                            value={emailOrUsername}
+                            onChange={(e) => setEmailOrUsername(e.target.value)}
+                            autoComplete="username"
+                            required
                         />
-                        <label htmlFor="email">Email</label>
+                        <label htmlFor="emailOrUsername">Email or Username</label>
                     </div>
 
                     {/* Password Input */}
@@ -97,9 +93,9 @@ const LoginPage: React.FC = () => {
                             id="password"
                             placeholder="Password"
                             value={password}
-                            onChange={(e) => setPassword(e.target.value)} // Update state
+                            onChange={(e) => setPassword(e.target.value)}
                             autoComplete="current-password"
-                            aria-required="true"
+                            required
                         />
                         <label htmlFor="password">Password</label>
                     </div>
@@ -112,20 +108,13 @@ const LoginPage: React.FC = () => {
                     </div>
 
                     {/* Sign In Button */}
-                    <button
-                        type="submit"
-                        className="btn loginbtn-primary btn-lg w-100"
-                    >
+                    <button type="submit" className="btn loginbtn-primary btn-lg w-100">
                         Sign in
                     </button>
 
                     {/* Register Button */}
                     <div className="mt-3 text-center">
-                        <Link
-                            to="/register"
-                            className="btn loginbtn-secondary btn-lg w-100"
-                            role="button"
-                        >
+                        <Link to="/register" className="btn loginbtn-secondary btn-lg w-100">
                             Register
                         </Link>
                     </div>

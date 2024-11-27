@@ -10,10 +10,11 @@ const Logout: React.FC = () => {
         if (token) {
             // Clear the JWT token from localStorage
             localStorage.removeItem('token');
-            // Redirect the user to the login page
-            navigate('/login');
+            // Redirect the user to the home page
+            navigate('/');
         } else {
-            // If no user is logged in, redirect to the login page directly
+            // If no user is logged in, redirect to the login page directly 
+            // Should be impossible to reach this point, but added for safety
             navigate('/login');
         }
     }, [navigate]);
