@@ -33,7 +33,7 @@ const SideMenu: React.FC = () => {
                     </>
                 ) : (
                     <li className="nav-item">
-                        <Link to="/login" className="nav-link">
+                        <Link to="/welcome" className="nav-link">
                             <i className="bi bi-box-arrow-in-right"></i> Login
                         </Link>
                     </li>

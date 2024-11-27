@@ -1,24 +1,26 @@
 import React from 'react';
 import './LoginMain.css';
 import {Link} from "react-router-dom";
+import WelcomeVector from '../assets/images/kage_welcome_vector.png';
 
 const LoginMain: React.FC = () => {
     return (
         <>
+
+            <div className="container">
             <Link
                 to="/"
                 className="btn-close btn-close-white"
                 aria-label="Close"
                 style={{ position: "absolute", top: "2rem", left: "2rem", fontSize: "1.8rem" }}
             ></Link>
-            <div className="container">
                 <div
                     className="row vh-100 justify-content-center align-items-center"
                     style={{paddingBottom: "5em"}}
                 >
                     <div className="col-md-8 text-center">
                         <img
-                            src={require('../assets/images/kage_welcome_vector.png')}
+                            src={WelcomeVector}
                             alt="Vector Illustration"
                             className="img-fluid my-2"
                             style={{height: "26rem"}}/>
