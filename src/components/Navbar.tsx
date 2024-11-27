@@ -64,7 +64,7 @@ const Navbar: React.FC = () => {
                                     </li>
                                     <li className="nav-item">
                                         <Link to="/settings" className="nav-link">
-                                            <i className="bi bi-gear"></i> Settings
+                                            Settings
                                         </Link>
                                     </li>
                                     <li className="nav-item">

@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom'; // Import Link and useNavigate for navigation
-import './RegisterPage.css'; // Custom styling
+import { Link, useNavigate } from 'react-router-dom';
+import './RegisterPage.css';
 
 const RegisterPage: React.FC = () => {
     const [formData, setFormData] = useState({
@@ -10,9 +10,10 @@ const RegisterPage: React.FC = () => {
         confirmPassword: ''
     });
     const [errorMessage, setErrorMessage] = useState('');
+    const [successMessage, setSuccessMessage] = useState('');
     const navigate = useNavigate();
 
-    // Handle form input changes
+    // Handle input changes
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         setFormData({
             ...formData,
@@ -22,7 +23,9 @@ const RegisterPage: React.FC = () => {
 
     // Handle form submission
     const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-        e.preventDefault(); // Prevent default form submission behavior
+        e.preventDefault();
+        setErrorMessage(''); // Reset error messages
+        setSuccessMessage(''); // Reset success message
 
         if (formData.password !== formData.confirmPassword) {
             setErrorMessage('Passwords do not match.');
@@ -30,7 +33,7 @@ const RegisterPage: React.FC = () => {
         }
 
         try {
-            // Send POST request to the API
+            // Send registration data to the API
             const response = await fetch('http://localhost:5094/auth/register', {
                 method: 'POST',
                 headers: {
@@ -45,35 +48,39 @@ const RegisterPage: React.FC = () => {
             });
 
             if (response.ok) {
-                // If registration is successful, log the user in automatically
+                // Registration successful
+                const data = await response.json();
+
+                // Attempt login after registration
                 const loginResponse = await fetch('http://localhost:5094/auth/login', {
                     method: 'POST',
                     headers: {
-                        'Content-Type': 'application/json'
+                        'Content-Type': 'application/json',
                     },
                     body: JSON.stringify({
                         email: formData.email,
                         password: formData.password
-                    })
+                    }),
                 });
 
                 if (loginResponse.ok) {
-                    const data = await loginResponse.json();
-                    localStorage.setItem('token', data.token); // Save JWT token in localStorage
-                    navigate('/'); // Redirect to the home page
+                    const loginData = await loginResponse.json();
+                    localStorage.setItem('token', loginData.token); // Save JWT token
+                    setSuccessMessage('Registration successful! Redirecting...');
+                    navigate('/'); // Redirect after successful login
                 } else {
-                    const errorData = await loginResponse.json();
-                    setErrorMessage(errorData.message || 'Login failed.');
+                    const loginError = await loginResponse.json();
+                    setErrorMessage(loginError.message || 'Login failed.');
                 }
             } else {
-                // Handle the structured error response
+                // Registration failed
                 const errorData = await response.json();
                 if (Array.isArray(errorData)) {
-                    // Map over the array of errors and extract descriptions
+                    // Handle multiple validation errors
                     const errorMessages = errorData.map(err => err.description).join(' ');
                     setErrorMessage(errorMessages);
                 } else {
-                    setErrorMessage('Registration failed. Please try again.');
+                    setErrorMessage(errorData.message || 'Registration failed. Please try again.');
                 }
             }
         } catch (error) {
@@ -96,16 +103,14 @@ const RegisterPage: React.FC = () => {
             <div className="col-md-8 d-flex flex-column justify-content-center align-items-center w-100">
                 {/* Header */}
                 <h2 className="mb-3 colored-text">Create Your Account</h2>
-                <p className="lead mb-4">
-                    Unlock your creativity and start capturing moments with us!
-                </p>
+                <p className="lead mb-4">Unlock your creativity and start capturing moments with us!</p>
 
                 {/* Register Form */}
                 <form
                     id="registerForm"
                     className="card bg-transparent text-dark p-4 border-0 w-100"
-                    style={{ maxWidth: "500px", width: "100%" }} // Ensures the form doesn't stretch too much
-                    onSubmit={handleSubmit} // Attach submit handler
+                    style={{ maxWidth: "500px", width: "100%" }}
+                    onSubmit={handleSubmit}
                 >
                     {/* Username Input */}
                     <div className="form-floating mb-3">
@@ -171,6 +176,13 @@ const RegisterPage: React.FC = () => {
                     {errorMessage && (
                         <div className="text-danger mb-3">
                             {errorMessage}
+                        </div>
+                    )}
+
+                    {/* Success Message */}
+                    {successMessage && (
+                        <div className="text-success mb-3">
+                            {successMessage}
                         </div>
                     )}
 
