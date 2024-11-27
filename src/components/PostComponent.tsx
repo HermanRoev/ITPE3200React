@@ -193,7 +193,7 @@ const PostComponent: React.FC<PostComponentProps> = ({ post, onDeletePost }) => 
 
     return (
         <div className="row justify-content-center mb-3" id={`post-${postData.postId}`}>
-            <div className="card col-md-6 mt-3" style={{ backgroundColor: '#7CBEEA14' }}>
+            <div className="card col-xl-8 mt-3" style={{ backgroundColor: '#7CBEEA14' }}>
                 {/* Post Container */}
                 <div className="post-container mt-3 mb-3">
                     {/* Triple-dot Dropdown Menu */}
@@ -321,7 +321,7 @@ const PostComponent: React.FC<PostComponentProps> = ({ post, onDeletePost }) => 
                                                 whiteSpace: 'nowrap',
                                                 overflow: 'hidden',
                                                 textOverflow: 'ellipsis',
-                                                maxWidth: 'calc(100% - 2rem)',
+                                                maxWidth: '100%',
                                             }}
                                         >
                                             {postData.userName}
@@ -334,12 +334,12 @@ const PostComponent: React.FC<PostComponentProps> = ({ post, onDeletePost }) => 
                                             style={{ fontSize: '2.5rem', color: '#7cbeea' }}
                                         ></i>
                                         <span
-                                            className="username text-white ms-2"
+                                            className="username ms-2"
                                             style={{
                                                 whiteSpace: 'nowrap',
                                                 overflow: 'hidden',
                                                 textOverflow: 'ellipsis',
-                                                maxWidth: 'calc(100% - 2rem)',
+                                                maxWidth: '100%',
                                             }}
                                         >
                                             {postData.userName}
@@ -433,15 +433,17 @@ const PostComponent: React.FC<PostComponentProps> = ({ post, onDeletePost }) => 
                                         <li key={comment.commentId} className="list-group-item pb-3">
                                             {/* First Line: Username, Time, and Action Buttons */}
                                             <div className="d-flex justify-content-between align-items-center">
-                                                <h6 className="mb-0">{comment.userName}</h6>
+                                                <span className="username mb-0">{comment.userName}</span>
                                                 <div className="d-flex align-items-center gap-2">
-                                                    <small className="text-muted text-nowrap">{comment.timeSincePosted}</small>
+                                                    <small className="text-muted text-nowrap">
+                                                        {comment.timeSincePosted}
+                                                    </small>
                                                     {comment.isCreatedByCurrentUser && (
                                                         <>
                                                             {/* Edit Button */}
                                                             <button
                                                                 type="button"
-                                                                className="btn btn-icon"
+                                                                className="btn btn-icon p-0"
                                                                 onClick={() => handleEditComment(comment)}
                                                             >
                                                                 <i className="bi bi-pencil text-primary"></i>
@@ -450,7 +452,7 @@ const PostComponent: React.FC<PostComponentProps> = ({ post, onDeletePost }) => 
                                                             {/* Delete Button */}
                                                             <button
                                                                 type="button"
-                                                                className="btn btn-icon"
+                                                                className="btn btn-icon p-0"
                                                                 onClick={() => handleDeleteComment(comment.commentId)}
                                                             >
                                                                 <i className="bi bi-trash text-danger"></i>
@@ -461,7 +463,7 @@ const PostComponent: React.FC<PostComponentProps> = ({ post, onDeletePost }) => 
                                             </div>
 
                                             {/* Second Line: Comment Content */}
-                                            <p className="mt-1 mb-0">{comment.content}</p>
+                                            <p className="mt-1 mb-0" style={{ color: '#f6f6f6' }}>{comment.content}</p>
                                         </li>
                                     ))}
                                 </ul>
