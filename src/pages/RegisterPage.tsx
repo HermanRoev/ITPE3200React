@@ -1,8 +1,80 @@
-import React from 'react';
-import { Link } from 'react-router-dom'; // Import Link for navigation
+import React, { useState } from 'react';
+import { Link, useNavigate } from 'react-router-dom'; // Import Link and useNavigate for navigation
 import './RegisterPage.css'; // Custom styling
 
 const RegisterPage: React.FC = () => {
+    const [formData, setFormData] = useState({
+        username: '',
+        email: '',
+        password: '',
+        confirmPassword: ''
+    });
+    const [errorMessage, setErrorMessage] = useState('');
+    const navigate = useNavigate();
+
+    // Handle form input changes
+    const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        setFormData({
+            ...formData,
+            [e.target.id]: e.target.value
+        });
+    };
+
+    // Handle form submission
+    const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+        e.preventDefault(); // Prevent default form submission behavior
+
+        if (formData.password !== formData.confirmPassword) {
+            setErrorMessage('Passwords do not match.');
+            return;
+        }
+
+        try {
+            // Send POST request to the API
+            const response = await fetch('http://localhost:5094/auth/register', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    username: formData.username,
+                    email: formData.email,
+                    password: formData.password,
+                    confirmPassword: formData.confirmPassword
+                })
+            });
+
+            if (response.ok) {
+                // If registration is successful, log the user in automatically
+                const loginResponse = await fetch('http://localhost:5094/auth/login', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        email: formData.email,
+                        password: formData.password
+                    })
+                });
+
+                if (loginResponse.ok) {
+                    const data = await loginResponse.json();
+                    localStorage.setItem('token', data.token); // Save JWT token in localStorage
+                    navigate('/'); // Redirect to the home page
+                } else {
+                    const errorData = await loginResponse.json();
+                    setErrorMessage(errorData.message || 'Login failed.');
+                }
+            } else {
+                const errorData = await response.json();
+                setErrorMessage(errorData.message || 'Registration failed.');
+            }
+        } catch (error) {
+            console.error('Error:', error);
+            setErrorMessage('Something went wrong. Please try again.');
+        }
+    };
+
     return (
         <div className="vh-100 overflow-hidden d-flex text-center justify-content-center align-items-center" style={{ paddingBottom: "1em" }}>
             {/* Close button */}
@@ -24,9 +96,9 @@ const RegisterPage: React.FC = () => {
                 {/* Register Form */}
                 <form
                     id="registerForm"
-                    method="post"
                     className="card bg-transparent text-dark p-4 border-0 w-100"
                     style={{ maxWidth: "500px", width: "100%" }} // Ensures the form doesn't stretch too much
+                    onSubmit={handleSubmit} // Attach submit handler
                 >
                     {/* Username Input */}
                     <div className="form-floating mb-3">
@@ -37,6 +109,8 @@ const RegisterPage: React.FC = () => {
                             placeholder="Username"
                             autoComplete="username"
                             aria-required="true"
+                            value={formData.username}
+                            onChange={handleChange}
                         />
                         <label htmlFor="username">Username</label>
                     </div>
@@ -50,6 +124,8 @@ const RegisterPage: React.FC = () => {
                             placeholder="name@example.com"
                             autoComplete="email"
                             aria-required="true"
+                            value={formData.email}
+                            onChange={handleChange}
                         />
                         <label htmlFor="email">Email</label>
                     </div>
@@ -63,6 +139,8 @@ const RegisterPage: React.FC = () => {
                             placeholder="Password"
                             autoComplete="new-password"
                             aria-required="true"
+                            value={formData.password}
+                            onChange={handleChange}
                         />
                         <label htmlFor="password">Password</label>
                     </div>
@@ -76,9 +154,18 @@ const RegisterPage: React.FC = () => {
                             placeholder="Confirm Password"
                             autoComplete="new-password"
                             aria-required="true"
+                            value={formData.confirmPassword}
+                            onChange={handleChange}
                         />
                         <label htmlFor="confirmPassword">Confirm Password</label>
                     </div>
+
+                    {/* Error Message */}
+                    {errorMessage && (
+                        <div className="text-danger mb-3">
+                            {errorMessage}
+                        </div>
+                    )}
 
                     {/* Sign Up Button */}
                     <button
