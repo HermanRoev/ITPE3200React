@@ -1,0 +1,54 @@
+/* Sidebar Styling */
+.side-menu {
+    background-color: rgba(124, 190, 234, 0.08) !important;
+    padding: 1em 0 1em !important;
+    height: calc(100vh - 53.95px) !important;
+}
+
+/* Profile Border Effect */
+.profile-border {
+    display: inline-block;
+    padding: 3px; /* Thickness of the border */
+    border-radius: 1em; /* Matches the profile image's corner radius */
+    background: linear-gradient(135deg, #7cbeea, #7c89ea); /* Gradient border */
+    width: 110px; /* Outer container width */
+    height: 110px; /* Outer container height */
+}
+
+.profile-pic {
+    width: 100%; /* Image fills the container */
+    height: 100%; /* Maintains aspect ratio within the container */
+    border-radius: 1em; /* Matches the corner radius of the outer container */
+    object-fit: cover; /* Ensures the image scales without distortion */
+}
+
+.default-profile-icon {
+    font-size: 100px !important;
+    color: #7cbeea !important;
+}
+
+.menu-list .nav-link {
+    color: #ffffff !important;
+    font-size: 1.4rem !important;
+    display: flex !important;
+    align-items: center !important;
+    gap: 8px !important;
+    padding: 10px !important;
+    border-left: 3px solid transparent !important;
+    transition: background-color 0.3s ease, color 0.3s ease !important;
+}
+
+.menu-list .nav-link:hover {
+    background-color: rgba(155, 155, 155, 0.16) !important;
+}
+
+.menu-list .nav-link.active {
+    background-color: rgba(155, 155, 155, 0.16) !important;
+    color: #7cbeea !important;
+    border-left: 3px solid #7cbeea !important;
+}
+
+/* Icon Styling */
+.bi {
+    font-size: 1.4rem !important;
+}

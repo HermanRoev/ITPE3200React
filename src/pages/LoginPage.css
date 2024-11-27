@@ -12,8 +12,3 @@
 .colored-text:hover {
     color: #76b5e0 !important;
 }
-
-/* Remove default navbar or footer if globally applied */
-.navbar, .footer {
-    display: none !important;
-}
