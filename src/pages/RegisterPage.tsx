@@ -1,8 +1,89 @@
-import React from 'react';
-import { Link } from 'react-router-dom'; // Import Link for navigation
-import './RegisterPage.css'; // Custom styling
+import React, { useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import "./RegisterPage.css";
 
 const RegisterPage: React.FC = () => {
+    const [formData, setFormData] = useState({
+        username: "",
+        email: "",
+        password: "",
+        confirmPassword: "",
+    });
+    const [errorMessage, setErrorMessage] = useState("");
+    const [successMessage, setSuccessMessage] = useState("");
+    const navigate = useNavigate();
+
+    const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        setFormData({
+            ...formData,
+            [e.target.id]: e.target.value,
+        });
+    };
+
+    const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+        e.preventDefault();
+        setErrorMessage("");
+        setSuccessMessage("");
+
+        if (formData.password !== formData.confirmPassword) {
+            setErrorMessage("Passwords do not match.");
+            return;
+        }
+
+        try {
+            // Send registration request
+            const response = await fetch("http://localhost:5094/auth/register", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({
+                    username: formData.username,
+                    email: formData.email,
+                    password: formData.password,
+                    confirmPassword: formData.confirmPassword,
+                }),
+            });
+
+            if (response.ok) {
+                const data = await response.json();
+                setSuccessMessage(data.message);
+
+                // Attempt login
+                const loginResponse = await fetch("http://localhost:5094/auth/login", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                    },
+                    body: JSON.stringify({
+                        EmailOrUsername: formData.username, // Use username
+                        Password: formData.password,
+                    }),
+                });
+
+                if (loginResponse.ok) {
+                    const loginData = await loginResponse.json();
+                    localStorage.setItem("token", loginData.token);
+                    navigate("/"); // Redirect on success
+                } else {
+                    setErrorMessage("Registration succeeded, but login failed. Please log in manually.");
+                }
+            } else {
+                // Handle registration errors
+                const errorData = await response.json();
+                if (Array.isArray(errorData)) {
+                    const errorMessages = errorData.map((err) => err.description).join(" ");
+                    setErrorMessage(errorMessages);
+                } else {
+                    setErrorMessage(errorData.message || "Registration failed. Please try again.");
+                }
+            }
+        } catch (error) {
+            console.error("Error:", error);
+            setErrorMessage("Something went wrong. Please try again.");
+        }
+    };
+
     return (
         <div className="vh-100 overflow-hidden d-flex text-center justify-content-center align-items-center" style={{ paddingBottom: "1em" }}>
             {/* Close button */}
@@ -15,90 +96,72 @@ const RegisterPage: React.FC = () => {
 
             {/* Main Content */}
             <div className="col-md-8 d-flex flex-column justify-content-center align-items-center w-100">
-                {/* Header */}
                 <h2 className="mb-3 colored-text">Create Your Account</h2>
-                <p className="lead mb-4">
-                    Unlock your creativity and start capturing moments with us!
-                </p>
+                <p className="lead mb-4">Unlock your creativity and start capturing moments with us!</p>
 
                 {/* Register Form */}
                 <form
-                    id="registerForm"
-                    method="post"
                     className="card bg-transparent text-dark p-4 border-0 w-100"
-                    style={{ maxWidth: "500px", width: "100%" }} // Ensures the form doesn't stretch too much
+                    style={{ maxWidth: "500px", width: "100%" }}
+                    onSubmit={handleSubmit}
                 >
-                    {/* Username Input */}
+                    {/* Form Fields */}
                     <div className="form-floating mb-3">
                         <input
                             type="text"
                             className="form-control"
                             id="username"
                             placeholder="Username"
-                            autoComplete="username"
-                            aria-required="true"
+                            value={formData.username}
+                            onChange={handleChange}
+                            required
                         />
                         <label htmlFor="username">Username</label>
                     </div>
-
-                    {/* Email Input */}
                     <div className="form-floating mb-3">
                         <input
                             type="email"
                             className="form-control"
                             id="email"
-                            placeholder="name@example.com"
-                            autoComplete="email"
-                            aria-required="true"
+                            placeholder="Email"
+                            value={formData.email}
+                            onChange={handleChange}
+                            required
                         />
                         <label htmlFor="email">Email</label>
                     </div>
-
-                    {/* Password Input */}
                     <div className="form-floating mb-3">
                         <input
                             type="password"
                             className="form-control"
                             id="password"
                             placeholder="Password"
-                            autoComplete="new-password"
-                            aria-required="true"
+                            value={formData.password}
+                            onChange={handleChange}
+                            required
                         />
                         <label htmlFor="password">Password</label>
                     </div>
-
-                    {/* Confirm Password Input */}
                     <div className="form-floating mb-3">
                         <input
                             type="password"
                             className="form-control"
                             id="confirmPassword"
                             placeholder="Confirm Password"
-                            autoComplete="new-password"
-                            aria-required="true"
+                            value={formData.confirmPassword}
+                            onChange={handleChange}
+                            required
                         />
                         <label htmlFor="confirmPassword">Confirm Password</label>
                     </div>
 
-                    {/* Sign Up Button */}
-                    <button
-                        id="registerSubmit"
-                        type="submit"
-                        className="btn loginbtn-primary btn-lg mt-4 w-100"
-                    >
+                    {/* Messages */}
+                    {errorMessage && <div className="text-danger mb-3">{errorMessage}</div>}
+                    {successMessage && <div className="text-success mb-3">{successMessage}</div>}
+
+                    <button type="submit" className="btn loginbtn-primary btn-lg w-100">
                         Sign up
                     </button>
-
-                    {/* Already Have an Account Link */}
-                    <div className="mt-3 text-center">
-                        <Link
-                            to="/login"
-                            className="btn loginbtn-secondary btn-lg w-100"
-                            role="button"
-                        >
-                            Already have an account?
-                        </Link>
-                    </div>
                 </form>
             </div>
         </div>
