@@ -17,3 +17,10 @@
     vertical-align: middle;
     margin-right: 5px;
 }
+
+/* Center dropdown menu at all states */
+.navbar-collapse {
+    justify-content: center !important; /* Center horizontally */
+    text-align: center !important;
+    font-size: 1.2rem;
+}
