@@ -66,8 +66,15 @@ const RegisterPage: React.FC = () => {
                     setErrorMessage(errorData.message || 'Login failed.');
                 }
             } else {
+                // Handle the structured error response
                 const errorData = await response.json();
-                setErrorMessage(errorData.message || 'Registration failed.');
+                if (Array.isArray(errorData)) {
+                    // Map over the array of errors and extract descriptions
+                    const errorMessages = errorData.map(err => err.description).join(' ');
+                    setErrorMessage(errorMessages);
+                } else {
+                    setErrorMessage('Registration failed. Please try again.');
+                }
             }
         } catch (error) {
             console.error('Error:', error);

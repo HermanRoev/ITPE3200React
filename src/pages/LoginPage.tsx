@@ -1,8 +1,48 @@
-import React from 'react';
-import { Link } from 'react-router-dom'; // Import Link
+import React, { useState } from 'react';
+import { Link, useNavigate } from 'react-router-dom'; // Import Link and useNavigate
 import './LoginPage.css'; // Custom styling
 
 const LoginPage: React.FC = () => {
+    // State to manage form inputs and error messages
+    const [email, setEmail] = useState('');
+    const [password, setPassword] = useState('');
+    const [errorMessage, setErrorMessage] = useState('');
+    const navigate = useNavigate();
+
+    const handleLogin = async (e: React.FormEvent) => {
+        e.preventDefault(); // Prevent the form from refreshing the page
+
+        try {
+            // Send a POST request to the API
+            const response = await fetch('http://localhost:5094/Auth/login', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    email: email,
+                    password: password,
+                }),
+            });
+
+            if (response.ok) {
+                const data = await response.json();
+                // Store the token in localStorage
+                localStorage.setItem('token', data.token);
+
+                // Redirect the user to the homepage or another protected route
+                navigate('/');
+            } else {
+                // If the response is not ok, handle the error
+                const errorData = await response.json();
+                setErrorMessage(errorData.message || 'Login failed. Please try again.');
+            }
+        } catch (error) {
+            // Handle network or unexpected errors
+            setErrorMessage('An unexpected error occurred. Please try again later.');
+        }
+    };
+
     return (
         <div className="vh-100 overflow-hidden d-flex justify-content-center align-items-center" style={{ paddingBottom: "5em" }}>
             {/* Close button */}
@@ -19,24 +59,34 @@ const LoginPage: React.FC = () => {
                 <h2 className="mb-3 colored-text">Login Here</h2>
                 <p className="lead mb-4">Welcome back you’ve been missed!</p>
 
+                {/* Error Message */}
+                {errorMessage && (
+                    <div className="alert alert-danger w-100" role="alert" style={{ maxWidth: "500px" }}>
+                        {errorMessage}
+                    </div>
+                )}
+
                 {/* Login Form */}
                 <form
                     id="account"
                     method="post"
                     className="card bg-transparent text-dark p-4 border-0 w-100"
-                    style={{ maxWidth: "500px", width: "100%" }} // Ensures the form doesn't stretch too much
+                    style={{ maxWidth: "500px", width: "100%" }}
+                    onSubmit={handleLogin} // Attach the handleLogin function to the form
                 >
-                    {/* Username Input */}
+                    {/* Email Input */}
                     <div className="form-floating mb-3">
                         <input
-                            type="text"
+                            type="email"
                             className="form-control"
-                            id="username"
-                            placeholder="username"
-                            autoComplete="username"
+                            id="email"
+                            placeholder="Email"
+                            value={email}
+                            onChange={(e) => setEmail(e.target.value)} // Update state
+                            autoComplete="email"
                             aria-required="true"
                         />
-                        <label htmlFor="username">Username</label>
+                        <label htmlFor="email">Email</label>
                     </div>
 
                     {/* Password Input */}
@@ -45,7 +95,9 @@ const LoginPage: React.FC = () => {
                             type="password"
                             className="form-control"
                             id="password"
-                            placeholder="password"
+                            placeholder="Password"
+                            value={password}
+                            onChange={(e) => setPassword(e.target.value)} // Update state
                             autoComplete="current-password"
                             aria-required="true"
                         />
