@@ -10,7 +10,7 @@ interface PostComponentProps {
 }
 
 const PostComponent: React.FC<PostComponentProps> = ({ post, onDeletePost }) => {
-    const { isAuthenticated } = useAuth();
+    const { isAuthenticated, token } = useAuth();
     const [isContentExpanded, setIsContentExpanded] = useState(false);
     const [commentsExpanded, setCommentsExpanded] = useState(false);
     const [newCommentContent, setNewCommentContent] = useState('');
@@ -23,7 +23,7 @@ const PostComponent: React.FC<PostComponentProps> = ({ post, onDeletePost }) => 
                 const response = await fetch(`/api/posts/${postId}`, {
                     method: 'DELETE',
                     headers: {
-                        'Authorization': `Bearer ${localStorage.getItem('token')}`,
+                        'Authorization': `Bearer ${token}`,
                         'Content-Type': 'application/json',
                     },
                 });

@@ -6,6 +6,7 @@ import reportWebVitals from './reportWebVitals';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import 'bootstrap/dist/js/bootstrap.bundle.min.js';
 import 'bootstrap-icons/font/bootstrap-icons.css';
+import { AuthProvider } from "./context/AuthContext";
 
 const rootElement = document.getElementById('root'); // Get the root element in index.html
 
@@ -13,7 +14,9 @@ if (rootElement) {
     const root = ReactDOM.createRoot(rootElement); // Create React root
     root.render(
         <React.StrictMode>
-            <App />
+            <AuthProvider >
+                <App />
+            </AuthProvider>
         </React.StrictMode>
     );
 }

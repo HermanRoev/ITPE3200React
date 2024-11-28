@@ -1,9 +1,10 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
+import { useAuth } from '../context/AuthContext';
 import './SideMenu.css';
 
 const SideMenu: React.FC = () => {
-    const isLoggedIn = localStorage.getItem('token'); // Simplified; replace with actual authentication check.
+    const { isAuthenticated } = useAuth();
 
     return (
         <div className="side-menu">
@@ -13,7 +14,7 @@ const SideMenu: React.FC = () => {
                         <i className="bi bi-house-door"></i> Home
                     </Link>
                 </li>
-                {isLoggedIn ? (
+                {isAuthenticated ? (
                     <>
                         <li className="nav-item">
                             <Link to="/profile" className="nav-link">
