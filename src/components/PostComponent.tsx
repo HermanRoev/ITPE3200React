@@ -6,7 +6,7 @@ import { useAuth } from '../context/AuthContext';
 
 interface PostComponentProps {
     post: PostDto;
-    onDeletePost?: (postId: string) => void; // Optional callback to remove post from parent state
+    onDeletePost?: (postId: string) => void; // Callback to remove post from parent state
 }
 
 const PostComponent: React.FC<PostComponentProps> = ({ post, onDeletePost }) => {
@@ -17,119 +17,113 @@ const PostComponent: React.FC<PostComponentProps> = ({ post, onDeletePost }) => 
     const [editingComment, setEditingComment] = useState<CommentDto | null>(null);
     const [postData, setPostData] = useState<PostDto>(post);
 
+    // Handler for deleting a post
     const handleDeletePost = async (postId: string) => {
-        if (window.confirm('Are you sure you want to delete this post?')) {
-            try {
-                const response = await fetch(`/api/posts/${postId}`, {
-                    method: 'DELETE',
-                    headers: {
-                        'Authorization': `Bearer ${token}`,
-                        'Content-Type': 'application/json',
-                    },
-                });
-                if (response.ok) {
-                    if (onDeletePost) {
-                        onDeletePost(postId); // Remove post from parent component
-                    }
-                } else {
-                    console.error('Error deleting post:', response.statusText);
-                }
-            } catch (error) {
-                console.error('Error deleting post:', error);
-            }
-        }
-    };
+        if (!window.confirm('Are you sure you want to delete this post?')) return;
 
-    const handleToggleLike = async (postId: string) => {
-        const previousIsLiked = postData.isLikedByCurrentUser;
-        const previousLikeCount = postData.likeCount;
-        setPostData((prevState) => ({
-            ...prevState,
-            isLikedByCurrentUser: !prevState.isLikedByCurrentUser,
-            likeCount: prevState.isLikedByCurrentUser
-                ? prevState.likeCount - 1
-                : prevState.likeCount + 1,
-        }));
         try {
-            const response = await fetch(`/api/posts/${postId}/toggleLike`, {
-                method: 'POST',
+            const response = await fetch(`http://localhost:5094/Post/DeletePost/${postId}`, {
+                method: 'DELETE', // Changed from POST to DELETE for semantic clarity
                 headers: {
-                    'Authorization': `Bearer ${token}`,
+                    'Authorization': `Bearer ${token}`, // Include JWT token for authentication
                     'Content-Type': 'application/json',
                 },
             });
-            if (!response.ok) {
-                setPostData((prevState) => ({
-                    ...prevState,
-                    isLikedByCurrentUser: previousIsLiked,
-                    likeCount: previousLikeCount,
+            if (response.ok) {
+                if (onDeletePost) {
+                    onDeletePost(postId); // Remove post from parent component
+                }
+                // toast.success('Post deleted successfully!');
+            } else {
+                const errorData = await response.json();
+                console.error('Error deleting post:', errorData.message);
+                // toast.error(`Error deleting post: ${errorData.message}`);
+            }
+        } catch (error) {
+            console.error('Error deleting post:', error);
+            // toast.error('An unexpected error occurred while deleting the post.');
+        }
+    };
+
+    // Handler for toggling like status
+    const handleToggleLike = async (postId: string) => {
+        try {
+            const response = await fetch(`http://localhost:5094/Post/ToggleLike/${postId}`, {
+                method: 'POST',
+                headers: {
+                    'Authorization': `Bearer ${token}`, // Include JWT token for authentication
+                    'Content-Type': 'application/json',
+                },
+            });
+            if (response.ok) {
+                const updatedPost: PostDto = await response.json();
+                setPostData((prevPost) => ({
+                    ...prevPost,
+                    isLikedByCurrentUser: updatedPost.isLikedByCurrentUser,
+                    likeCount: updatedPost.likeCount,
                 }));
+            } else {
                 console.error('Error toggling like:', response.statusText);
             }
         } catch (error) {
-            setPostData((prevState) => ({
-                ...prevState,
-                isLikedByCurrentUser: previousIsLiked,
-                likeCount: previousLikeCount,
-            }));
             console.error('Error toggling like:', error);
         }
     };
 
+    // Handler for toggling save status
     const handleToggleSave = async (postId: string) => {
-        const previousIsSaved = postData.isSavedByCurrentUser;
-        setPostData((prevState) => ({
-            ...prevState,
-            isSavedByCurrentUser: !prevState.isSavedByCurrentUser,
-        }));
         try {
-            const response = await fetch(`/api/posts/${postId}/toggleSave`, {
+            const response = await fetch(`http://localhost:5094/Post/ToggleSave/${postId}`, {
                 method: 'POST',
                 headers: {
-                    'Authorization': `Bearer ${token}`,
+                    'Authorization': `Bearer ${token}`, // Include JWT token for authentication
                     'Content-Type': 'application/json',
                 },
             });
-            if (!response.ok) {
-                setPostData((prevState) => ({
-                    ...prevState,
-                    isSavedByCurrentUser: previousIsSaved,
+            if (response.ok) {
+                const updatedPost: PostDto = await response.json();
+                setPostData((prevPost) => ({
+                    ...prevPost,
+                    isSavedByCurrentUser: updatedPost.isSavedByCurrentUser,
                 }));
+            } else {
                 console.error('Error toggling save:', response.statusText);
             }
         } catch (error) {
-            setPostData((prevState) => ({
-                ...prevState,
-                isSavedByCurrentUser: previousIsSaved,
-            }));
             console.error('Error toggling save:', error);
         }
     };
 
     const handleAddComment = async (event: React.FormEvent<HTMLFormElement>) => {
         event.preventDefault();
+        if (!newCommentContent.trim()) return;
+
         try {
-            const response = await fetch(`/api/posts/${postData.postId}/comments`, {
+            const response = await fetch(`http://localhost:5094/Post/AddComment`, {
                 method: 'POST',
                 headers: {
-                    'Authorization': `Bearer ${token}`,
+                    'Authorization': `Bearer ${token}`, // Include JWT token for authentication
                     'Content-Type': 'application/json',
                 },
-                body: JSON.stringify({ content: newCommentContent }),
+                body: JSON.stringify({ postId: postData.postId, content: newCommentContent }),
             });
             if (response.ok) {
-                const newComment: CommentDto = await response.json();
-                setPostData((prevState) => ({
-                    ...prevState,
-                    comments: [...prevState.comments, newComment],
-                    commentCount: prevState.commentCount + 1,
+                const updatedPost: PostDto = await response.json();
+                setPostData((prevPost) => ({
+                    ...prevPost,
+                    comments: updatedPost.comments,
+                    commentCount: updatedPost.commentCount,
                 }));
                 setNewCommentContent('');
+                // toast.success('Comment added successfully!');
             } else {
-                console.error('Error adding comment:', response.statusText);
+                const errorData = await response.json();
+                console.error('Error adding comment:', errorData.message);
+                // toast.error(`Error adding comment: ${errorData.message}`);
             }
         } catch (error) {
             console.error('Error adding comment:', error);
+            // toast.error('An unexpected error occurred while adding the comment.');
         }
     };
 
@@ -137,57 +131,76 @@ const PostComponent: React.FC<PostComponentProps> = ({ post, onDeletePost }) => 
         setEditingComment(comment);
     };
 
+    // Handler for saving edited comment
     const handleSaveEditedComment = async (event: React.FormEvent<HTMLFormElement>) => {
         event.preventDefault();
-        if (editingComment) {
-            try {
-                const response = await fetch(`/api/comments/${editingComment.commentId}`, {
-                    method: 'PUT',
-                    headers: {
-                        'Authorization': `Bearer ${token}`,
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({ content: editingComment.content }),
-                });
-                if (response.ok) {
-                    setPostData((prevState) => ({
-                        ...prevState,
-                        comments: prevState.comments.map((comment) =>
-                            comment.commentId === editingComment.commentId ? editingComment : comment
-                        ),
-                    }));
-                    setEditingComment(null);
-                } else {
-                    console.error('Error editing comment:', response.statusText);
-                }
-            } catch (error) {
-                console.error('Error editing comment:', error);
+        if (!editingComment) return;
+
+        try {
+            const response = await fetch(`http://localhost:5094/Post/EditComment`, {
+                method: 'POST', // Consider changing to PUT or PATCH for semantic clarity
+                headers: {
+                    'Authorization': `Bearer ${token}`, // Include JWT token for authentication
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    postId: postData.postId,
+                    commentId: editingComment.commentId,
+                    content: editingComment.content,
+                }),
+            });
+            if (response.ok) {
+                const updatedPost: PostDto = await response.json();
+                setPostData((prevPost) => ({
+                    ...prevPost,
+                    comments: updatedPost.comments,
+                }));
+                setEditingComment(null);
+                // toast.success('Comment edited successfully!');
+            } else {
+                const errorData = await response.json();
+                console.error('Error editing comment:', errorData.message);
+                // toast.error(`Error editing comment: ${errorData.message}`);
             }
+        } catch (error) {
+            console.error('Error editing comment:', error);
+            // toast.error('An unexpected error occurred while editing the comment.');
         }
     };
 
+    // Handler for deleting a comment
     const handleDeleteComment = async (commentId: string) => {
-        if (window.confirm('Are you sure you want to delete this comment?')) {
-            try {
-                const response = await fetch(`/api/comments/${commentId}`, {
-                    method: 'DELETE',
-                    headers: {
-                        'Authorization': `Bearer ${token}`,
-                        'Content-Type': 'application/json',
-                    },
-                });
-                if (response.ok) {
-                    setPostData((prevState) => ({
-                        ...prevState,
-                        comments: prevState.comments.filter((comment) => comment.commentId !== commentId),
-                        commentCount: prevState.commentCount - 1,
-                    }));
-                } else {
-                    console.error('Error deleting comment:', response.statusText);
-                }
-            } catch (error) {
-                console.error('Error deleting comment:', error);
+        // Confirm deletion with the user
+        if (!window.confirm('Are you sure you want to delete this comment?')) return;
+
+        try {
+            // Send a DELETE request to the DeleteComment endpoint with necessary query parameters
+            const response = await fetch(`http://localhost:5094/Post/DeleteComment?postId=${postData.postId}&commentId=${commentId}`, {
+                method: 'DELETE', // Changed from POST to DELETE for semantic clarity
+                headers: {
+                    'Authorization': `Bearer ${token}`, // Include JWT token for authentication
+                    'Content-Type': 'application/json',
+                },
+            });
+
+            if (response.ok) {
+                // Parse the updated post data from the response
+                const updatedPost: PostDto = await response.json();
+
+                // Update the postData state with the updated post
+                setPostData(updatedPost);
+
+                // toast.success('Comment deleted successfully!');
+            } else {
+                // Handle non-OK responses by parsing and logging the error message
+                const errorData = await response.json();
+                console.error('Error deleting comment:', errorData.message);
+                // toast.error(`Error deleting comment: ${errorData.message}`);
             }
+        } catch (error) {
+            // Handle network or unexpected errors
+            console.error('Error deleting comment:', error);
+            // toast.error('An unexpected error occurred while deleting the comment.');
         }
     };
 

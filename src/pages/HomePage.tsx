@@ -34,6 +34,11 @@ const HomePage: React.FC = () => {
         fetchPosts();
     }, []); // **Empty dependency array ensures this runs only once on mount**
 
+    // Callback to remove a post from the list
+    const handleDeletePost = (postId: string) => {
+        setPosts((prevPosts) => prevPosts.filter((post) => post.postId !== postId));
+    };
+
     if (loading) {
         return (
             <div className="container mt-3">
@@ -75,7 +80,7 @@ const HomePage: React.FC = () => {
                 ) : (
                     posts.map((post) => (
                         <div className="col-12 col-md-8" key={post.postId}>
-                            <PostComponent post={post} />
+                            <PostComponent post={post}  onDeletePost={handleDeletePost}/>
                         </div>
                     ))
                 )}
