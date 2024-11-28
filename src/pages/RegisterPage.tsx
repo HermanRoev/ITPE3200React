@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import { useAuth } from "../context/AuthContext";
 import "./RegisterPage.css";
 
 const RegisterPage: React.FC = () => {
@@ -12,6 +13,7 @@ const RegisterPage: React.FC = () => {
     const [errorMessage, setErrorMessage] = useState("");
     const [successMessage, setSuccessMessage] = useState("");
     const navigate = useNavigate();
+    const { login } = useAuth();
 
     // Handle form input changes
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -67,7 +69,7 @@ const RegisterPage: React.FC = () => {
                 // Handle login response
                 if (loginResponse.ok) {
                     const loginData = await loginResponse.json();
-                    localStorage.setItem("token", loginData.token);
+                    login(loginData.token);
                     navigate("/"); // Redirect on success
                 } else {
                     setErrorMessage("Registration succeeded, but login failed. Please log in manually.");

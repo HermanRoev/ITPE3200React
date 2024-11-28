@@ -54,7 +54,7 @@ const PostComponent: React.FC<PostComponentProps> = ({ post, onDeletePost }) => 
             const response = await fetch(`/api/posts/${postId}/toggleLike`, {
                 method: 'POST',
                 headers: {
-                    'Authorization': `Bearer ${localStorage.getItem('token')}`,
+                    'Authorization': `Bearer ${token}`,
                     'Content-Type': 'application/json',
                 },
             });
@@ -86,7 +86,7 @@ const PostComponent: React.FC<PostComponentProps> = ({ post, onDeletePost }) => 
             const response = await fetch(`/api/posts/${postId}/toggleSave`, {
                 method: 'POST',
                 headers: {
-                    'Authorization': `Bearer ${localStorage.getItem('token')}`,
+                    'Authorization': `Bearer ${token}`,
                     'Content-Type': 'application/json',
                 },
             });
@@ -112,7 +112,7 @@ const PostComponent: React.FC<PostComponentProps> = ({ post, onDeletePost }) => 
             const response = await fetch(`/api/posts/${postData.postId}/comments`, {
                 method: 'POST',
                 headers: {
-                    'Authorization': `Bearer ${localStorage.getItem('token')}`,
+                    'Authorization': `Bearer ${token}`,
                     'Content-Type': 'application/json',
                 },
                 body: JSON.stringify({ content: newCommentContent }),
@@ -144,7 +144,7 @@ const PostComponent: React.FC<PostComponentProps> = ({ post, onDeletePost }) => 
                 const response = await fetch(`/api/comments/${editingComment.commentId}`, {
                     method: 'PUT',
                     headers: {
-                        'Authorization': `Bearer ${localStorage.getItem('token')}`,
+                        'Authorization': `Bearer ${token}`,
                         'Content-Type': 'application/json',
                     },
                     body: JSON.stringify({ content: editingComment.content }),
@@ -172,7 +172,7 @@ const PostComponent: React.FC<PostComponentProps> = ({ post, onDeletePost }) => 
                 const response = await fetch(`/api/comments/${commentId}`, {
                     method: 'DELETE',
                     headers: {
-                        'Authorization': `Bearer ${localStorage.getItem('token')}`,
+                        'Authorization': `Bearer ${token}`,
                         'Content-Type': 'application/json',
                     },
                 });
