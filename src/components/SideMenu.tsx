@@ -3,9 +3,8 @@ import './SideMenu.css';
 import React from "react";
 import { NavLink } from "react-router-dom";
 
-
 const SideMenu: React.FC = () => {
-    const { isAuthenticated, userProfile } = useAuth();
+    const { isAuthenticated, userProfile } = useAuth(); // Bruker userProfile fra AuthContext
 
     return (
         <div className="side-menu position-fixed">

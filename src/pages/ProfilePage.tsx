@@ -1,16 +1,8 @@
 import React, { useState, useEffect } from "react";
 import EditProfileModal from "./EditProfileModal";
 import CreatePostModal from "./CreatePostModal";
-import { fetchProfileData, followUser, unfollowUser } from "../services/profileService";
+import { followUser, unfollowUser } from "../services/profileService";
 import { useAuth } from "../context/AuthContext";
-
-interface User {
-    username: string;
-    profilePictureUrl: string;
-    bio: string;
-    followers: number;
-    following: number;
-}
 
 interface Post {
     id: string;
@@ -18,63 +10,39 @@ interface Post {
 }
 
 const ProfilePage: React.FC = () => {
-    const { isAuthenticated, token } = useAuth();
-    const [user, setUser] = useState<User>({
-        username: "",
-        profilePictureUrl: "",
-        bio: "",
-        followers: 0,
-        following: 0,
-    });
-    const [posts, setPosts] = useState<Post[]>([]);
+    const { isAuthenticated, userProfile, token, setUserProfile } = useAuth(); // Hent data fra AuthContext, inkludert token
+    const [user, setUser] = useState(userProfile || null);
+    const [posts, setPosts] = useState<Post[]>(userProfile?.posts || []);
     const [gridLayout, setGridLayout] = useState("3x3");
     const [showEditModal, setShowEditModal] = useState(false);
     const [showCreatePostModal, setShowCreatePostModal] = useState(false);
-    const [isCurrentUserProfile, setIsCurrentUserProfile] = useState(true);
     const [isFollowing, setIsFollowing] = useState(false);
 
     useEffect(() => {
-        const loadProfile = async () => {
-            if (!isAuthenticated || !token) {
-                alert("You must be logged in to view this profile.");
-                return;
-            }
-
-            try {
-                const profileData = await fetchProfileData(user.username, token);
-                setUser(profileData.username);
-                setPosts(profileData.posts);
-                setIsCurrentUserProfile(profileData.isCurrentUserProfile);
-                setIsFollowing(profileData.isFollowing);
-            } catch (error) {
-                console.error("Failed to load profile data:", error);
-                alert("An error occurred while fetching profile data.");
-            }
-        };
-
-        loadProfile();
-    }, [isAuthenticated, token, user.username]);
+        if (userProfile) {
+            setUser(userProfile);
+            setPosts(userProfile.posts);
+        }
+    }, [userProfile]);
 
     const handleFollowToggle = async () => {
-        if (!isAuthenticated) {
+        if (!isAuthenticated || !user || !token) {
             alert("You need to log in to follow/unfollow users.");
             return;
         }
 
         try {
             if (isFollowing) {
-                await unfollowUser(user.username, token!);
-                setUser((prev: User) => ({
-                    ...prev,
-                    followers: prev.followers - 1,
-                }));
+                await unfollowUser(user.username, token); // Bruk token fra AuthContext
+                setUser((prevUser) =>
+                    prevUser ? { ...prevUser, followers: prevUser.followers - 1 } : null
+                );
                 setIsFollowing(false);
             } else {
-                await followUser(user.username, token!);
-                setUser((prev: User) => ({
-                    ...prev,
-                    followers: prev.followers + 1,
-                }));
+                await followUser(user.username, token); // Bruk token fra AuthContext
+                setUser((prevUser) =>
+                    prevUser ? { ...prevUser, followers: prevUser.followers + 1 } : null
+                );
                 setIsFollowing(true);
             }
         } catch (error) {
@@ -84,38 +52,39 @@ const ProfilePage: React.FC = () => {
     };
 
     const handleSaveProfileChanges = (data: { bio: string; profilePicture: File | null }) => {
-        setUser((prev: User) => ({
-            ...prev,
+        if (!user) return;
+
+        // Update the profile in the local state
+        const updatedUser = {
+            ...user,
             bio: data.bio,
             profilePictureUrl: data.profilePicture
-                ? URL.createObjectURL(data.profilePicture)
-                : prev.profilePictureUrl,
-        }));
-    };
+                ? URL.createObjectURL(data.profilePicture) // If there's a new picture, use it
+                : user.profilePictureUrl,
+        };
 
-    const handleCreatePost = async (postData: { content: string; images: File[] }) => {
-        if (!postData.images.length) {
-            alert("Please upload at least one image.");
-            return;
+        setUser(updatedUser);
+
+        // Also update userProfile in AuthContext
+        if (userProfile) {
+            userProfile.bio = data.bio;
+            userProfile.profilePictureUrl = updatedUser.profilePictureUrl; // Update profile picture URL
+            setUserProfile({ ...userProfile });
         }
 
-        // Add the new post to the list
-        const newPost: Post = {
-            id: Math.random().toString(36).substring(7),
-            imageUrl: URL.createObjectURL(postData.images[0]),
-        };
-        setPosts((prev: Post[]) => [newPost, ...prev]);
-
-        // Close the modal
-        setShowCreatePostModal(false);
+        // Call onSaveChanges (provided by parent)
+        // This function will update the API and ensure changes are saved server-side as well
     };
 
     const toggleGridLayout = (layout: string) => {
         setGridLayout(layout);
     };
 
+    if (!user) return <p>Loading...</p>;
+
     return (
         <div className="profile-page container py-5">
+            {/* Profil-oversikt */}
             <div className="row align-items-center mb-4">
                 <div className="col-md-4 text-center">
                     {user.profilePictureUrl ? (
@@ -152,7 +121,7 @@ const ProfilePage: React.FC = () => {
                         <span>{user.following} Following</span>
                     </div>
                     <div className="mt-3">
-                        {isCurrentUserProfile ? (
+                        {userProfile?.username === user.username ? (
                             <>
                                 <button
                                     className="btn btn-primary me-3"
@@ -178,6 +147,7 @@ const ProfilePage: React.FC = () => {
                     </div>
                 </div>
             </div>
+            {/* Posts */}
             <div className="d-flex justify-content-center mb-3">
                 <i
                     className={`bi bi-grid-3x3-gap ${gridLayout === "3x3" ? "text-primary" : "text-muted"}`}
@@ -213,10 +183,15 @@ const ProfilePage: React.FC = () => {
             <CreatePostModal
                 show={showCreatePostModal}
                 handleClose={() => setShowCreatePostModal(false)}
-                onCreatePost={handleCreatePost}
+                onCreatePost={() => {}}
             />
         </div>
     );
 };
 
 export default ProfilePage;
+
+
+
+
+

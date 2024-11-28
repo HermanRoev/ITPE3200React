@@ -8,7 +8,7 @@ interface EditProfileModalProps {
         profilePictureUrl: string;
         bio: string;
     };
-    onSaveChanges: (data: { bio: string; profilePicture: File | null }) => void;
+    onSaveChanges: (data: { bio: string; profilePicture: File | null }) => void; // onSaveChanges prop
 }
 
 const EditProfileModal: React.FC<EditProfileModalProps> = ({
@@ -25,6 +25,7 @@ const EditProfileModal: React.FC<EditProfileModalProps> = ({
         setBio(user.bio || "");
     }, [user.bio]);
 
+    // Håndter filendring for profilbilde
     const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         if (e.target.files && e.target.files.length > 0) {
             const selectedFile = e.target.files[0];
@@ -47,9 +48,10 @@ const EditProfileModal: React.FC<EditProfileModalProps> = ({
         }
     };
 
+    // Håndter lagring av endringer (bio og profilbilde)
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
-        onSaveChanges({ bio, profilePicture });
+        onSaveChanges({ bio, profilePicture }); // Kall onSaveChanges fra prop
         handleClose();
     };
 
@@ -110,3 +112,4 @@ const EditProfileModal: React.FC<EditProfileModalProps> = ({
 };
 
 export default EditProfileModal;
+
