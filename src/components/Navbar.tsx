@@ -56,7 +56,7 @@ const Navbar: React.FC = () => {
                                         </Link>
                                     </li>
                                     <li className="nav-item d-none d-lg-block">
-                                        <Link to="/create" className="nav-link text-white d-flex align-items-center">
+                                        <Link to="/createpost" className="nav-link text-white d-flex align-items-center">
                                             <i className="bi bi-plus-circle"></i>
                                         </Link>
                                     </li>
@@ -94,7 +94,7 @@ const Navbar: React.FC = () => {
                                     </Link>
                                 </li>
                                 <li className="nav-item">
-                                    <Link to="/create" className="nav-link text-white">
+                                    <Link to="/createpost" className="nav-link text-white">
                                         Create
                                     </Link>
                                 </li>
