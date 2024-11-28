@@ -23,7 +23,7 @@ const PostComponent: React.FC<PostComponentProps> = ({ post, onDeletePost }) => 
 
         try {
             const response = await fetch(`http://localhost:5094/Post/DeletePost/${postId}`, {
-                method: 'DELETE', // Changed from POST to DELETE for semantic clarity
+                method: 'Post',
                 headers: {
                     'Authorization': `Bearer ${token}`, // Include JWT token for authentication
                     'Content-Type': 'application/json',
@@ -33,15 +33,12 @@ const PostComponent: React.FC<PostComponentProps> = ({ post, onDeletePost }) => 
                 if (onDeletePost) {
                     onDeletePost(postId); // Remove post from parent component
                 }
-                // toast.success('Post deleted successfully!');
             } else {
                 const errorData = await response.json();
                 console.error('Error deleting post:', errorData.message);
-                // toast.error(`Error deleting post: ${errorData.message}`);
             }
         } catch (error) {
             console.error('Error deleting post:', error);
-            // toast.error('An unexpected error occurred while deleting the post.');
         }
     };
 
@@ -115,15 +112,12 @@ const PostComponent: React.FC<PostComponentProps> = ({ post, onDeletePost }) => 
                     commentCount: updatedPost.commentCount,
                 }));
                 setNewCommentContent('');
-                // toast.success('Comment added successfully!');
             } else {
                 const errorData = await response.json();
                 console.error('Error adding comment:', errorData.message);
-                // toast.error(`Error adding comment: ${errorData.message}`);
             }
         } catch (error) {
             console.error('Error adding comment:', error);
-            // toast.error('An unexpected error occurred while adding the comment.');
         }
     };
 
@@ -156,15 +150,12 @@ const PostComponent: React.FC<PostComponentProps> = ({ post, onDeletePost }) => 
                     comments: updatedPost.comments,
                 }));
                 setEditingComment(null);
-                // toast.success('Comment edited successfully!');
             } else {
                 const errorData = await response.json();
                 console.error('Error editing comment:', errorData.message);
-                // toast.error(`Error editing comment: ${errorData.message}`);
             }
         } catch (error) {
             console.error('Error editing comment:', error);
-            // toast.error('An unexpected error occurred while editing the comment.');
         }
     };
 
@@ -174,9 +165,9 @@ const PostComponent: React.FC<PostComponentProps> = ({ post, onDeletePost }) => 
         if (!window.confirm('Are you sure you want to delete this comment?')) return;
 
         try {
-            // Send a DELETE request to the DeleteComment endpoint with necessary query parameters
+            // Send a POST request to the DeleteComment endpoint with query parameters
             const response = await fetch(`http://localhost:5094/Post/DeleteComment?postId=${postData.postId}&commentId=${commentId}`, {
-                method: 'DELETE', // Changed from POST to DELETE for semantic clarity
+                method: 'POST',
                 headers: {
                     'Authorization': `Bearer ${token}`, // Include JWT token for authentication
                     'Content-Type': 'application/json',
@@ -190,17 +181,14 @@ const PostComponent: React.FC<PostComponentProps> = ({ post, onDeletePost }) => 
                 // Update the postData state with the updated post
                 setPostData(updatedPost);
 
-                // toast.success('Comment deleted successfully!');
             } else {
                 // Handle non-OK responses by parsing and logging the error message
                 const errorData = await response.json();
                 console.error('Error deleting comment:', errorData.message);
-                // toast.error(`Error deleting comment: ${errorData.message}`);
             }
         } catch (error) {
             // Handle network or unexpected errors
             console.error('Error deleting comment:', error);
-            // toast.error('An unexpected error occurred while deleting the comment.');
         }
     };
 
@@ -372,7 +360,7 @@ const PostComponent: React.FC<PostComponentProps> = ({ post, onDeletePost }) => 
                                 aria-expanded={commentsExpanded}
                                 aria-controls={`commentsSection-${postData.postId}`}
                             >
-                                <i className="bi bi-chat"></i>
+                                <i className="bi bi-chat icon-drop-shadow"></i>
                                 <p>{postData.commentCount}</p>
                             </button>
 
@@ -385,7 +373,7 @@ const PostComponent: React.FC<PostComponentProps> = ({ post, onDeletePost }) => 
                                 {postData.isLikedByCurrentUser ? (
                                     <i className="bi bi-heart-fill text-danger"></i>
                                 ) : (
-                                    <i className="bi bi-heart"></i>
+                                    <i className="bi bi-heart icon-drop-shadow"></i>
                                 )}
                                 <p>{postData.likeCount}</p>
                             </button>
@@ -399,7 +387,7 @@ const PostComponent: React.FC<PostComponentProps> = ({ post, onDeletePost }) => 
                                 {postData.isSavedByCurrentUser ? (
                                     <i className="bi bi-bookmark-fill"></i>
                                 ) : (
-                                    <i className="bi bi-bookmark"></i>
+                                    <i className="bi bi-bookmark-plus icon-drop-shadow"></i>
                                 )}
                             </button>
                         </div>

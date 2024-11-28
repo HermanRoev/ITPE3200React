@@ -1,7 +1,7 @@
 import { useAuth } from '../context/AuthContext';
 import './SideMenu.css';
 import React from "react";
-import {Link, NavLink} from "react-router-dom";
+import { NavLink } from "react-router-dom";
 
 
 const SideMenu: React.FC = () => {
