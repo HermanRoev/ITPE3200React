@@ -1,43 +1,11 @@
 import { useAuth } from '../context/AuthContext';
 import './SideMenu.css';
-import React, { useEffect, useState } from "react";
+import React from "react";
 import { NavLink } from "react-router-dom";
 
-interface UserProfile {
-    username: string;
-    profilePictureUrl: string;
-}
 
 const SideMenu: React.FC = () => {
-    const { isAuthenticated, token } = useAuth();
-    const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
-
-    useEffect(() => {
-        const fetchBasicProfile = async () => {
-            if (!token) return;
-
-            try {
-                const response = await fetch("http://localhost:5094/Profile/basic", {
-                    method: "GET",
-                    headers: {
-                        Authorization: `Bearer ${token}`,
-                        "Content-Type": "application/json",
-                    },
-                });
-
-                if (response.ok) {
-                    const data: UserProfile = await response.json();
-                    setUserProfile(data);
-                } else {
-                    console.error("Failed to fetch profile data");
-                }
-            } catch (error) {
-                console.error("Error fetching user profile:", error);
-            }
-        };
-
-        fetchBasicProfile();
-    }, []);
+    const { isAuthenticated, userProfile } = useAuth();
 
     return (
         <div className="side-menu position-fixed">

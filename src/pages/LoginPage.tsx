@@ -1,12 +1,14 @@
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom"; // Import Link and useNavigate
 import "./LoginPage.css"; // Custom styling
+import { useAuth } from "../context/AuthContext";
 
 const LoginPage: React.FC = () => {
     const [emailOrUsername, setEmailOrUsername] = useState(""); // State for email/username input
     const [password, setPassword] = useState(""); // State for password input
     const [errorMessage, setErrorMessage] = useState(""); // State for error messages
     const navigate = useNavigate();
+    const { login } = useAuth();
 
     const handleLogin = async (e: React.FormEvent) => {
         e.preventDefault(); // Prevent the default form submission
@@ -26,8 +28,9 @@ const LoginPage: React.FC = () => {
 
             if (response.ok) {
                 const data = await response.json();
-                // Store the JWT token in localStorage
-                localStorage.setItem("token", data.token);
+
+                // Call the login function from the AuthContext
+                login(data.token);
 
                 // Redirect to the homepage (or any protected route)
                 navigate("/");

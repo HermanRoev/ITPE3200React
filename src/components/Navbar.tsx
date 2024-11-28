@@ -1,10 +1,12 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
+import { useAuth } from '../context/AuthContext';
 import './Navbar.css';
 import icon from '../assets/images/icon.png';
 
 const Navbar: React.FC = () => {
     const isLoggedIn = !!localStorage.getItem('token'); // Placeholder; replace with actual login check logic.
+    const { logout } = useAuth();
 
     return (
         <header className="sticky-top p-0">
@@ -68,14 +70,18 @@ const Navbar: React.FC = () => {
                                         </Link>
                                     </li>
                                     <li className="nav-item">
-                                        <Link to="/logout" className="nav-link text-white">
+                                        <button
+                                            onClick={logout}
+                                            className="nav-link btn btn-link text-white"
+                                            style={{textDecoration: 'none', padding: 0}}
+                                        >
                                             Logout
-                                        </Link>
+                                        </button>
                                     </li>
                                 </>
                             ) : (
                                 <li className="nav-item">
-                                    <Link to="/welcome" className="nav-link text-white">
+                                <Link to="/welcome" className="nav-link text-white">
                                         Login
                                     </Link>
                                 </li>
