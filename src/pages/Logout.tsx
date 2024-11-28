@@ -13,9 +13,8 @@ const Logout: React.FC = () => {
             // Redirect the user to the home page
             navigate('/');
         } else {
-            // If no user is logged in, redirect to the login page directly 
-            // Should be impossible to reach this point, but added for safety
-            navigate('/login');
+            // If no token is found, redirect the user to the home page
+            navigate('/');
         }
     }, [navigate]);
 
