@@ -1,7 +1,7 @@
 import { useAuth } from '../context/AuthContext';
 import './SideMenu.css';
 import React from "react";
-import { NavLink } from "react-router-dom";
+import {Link, NavLink} from "react-router-dom";
 
 
 const SideMenu: React.FC = () => {
@@ -46,7 +46,7 @@ const SideMenu: React.FC = () => {
                         <li className="nav-item">
                             <NavLink
                                 to="/profile"
-                                className={({ isActive }) =>
+                                className={({isActive}) =>
                                     isActive ? "nav-link active" : "nav-link"
                                 }
                             >
@@ -56,7 +56,7 @@ const SideMenu: React.FC = () => {
                         <li className="nav-item">
                             <NavLink
                                 to="/saved"
-                                className={({ isActive }) =>
+                                className={({isActive}) =>
                                     isActive ? "nav-link active" : "nav-link"
                                 }
                             >
@@ -65,8 +65,18 @@ const SideMenu: React.FC = () => {
                         </li>
                         <li className="nav-item">
                             <NavLink
+                                to="/create"
+                                className={({isActive}) =>
+                                    isActive ? "nav-link active" : "nav-link"
+                                }
+                            >
+                                <i className="bi bi-plus-square"></i> Create
+                            </NavLink>
+                        </li>
+                        <li className="nav-item">
+                            <NavLink
                                 to="/settings"
-                                className={({ isActive }) =>
+                                className={({isActive}) =>
                                     isActive ? "nav-link active" : "nav-link"
                                 }
                             >
@@ -78,7 +88,7 @@ const SideMenu: React.FC = () => {
                     <li className="nav-item">
                         <NavLink
                             to="/login"
-                            className={({ isActive }) =>
+                            className={({isActive}) =>
                                 isActive ? "nav-link active" : "nav-link"
                             }
                         >
