@@ -13,6 +13,7 @@ const RegisterPage: React.FC = () => {
     const [successMessage, setSuccessMessage] = useState("");
     const navigate = useNavigate();
 
+    // Handle form input changes
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         setFormData({
             ...formData,
@@ -20,6 +21,7 @@ const RegisterPage: React.FC = () => {
         });
     };
 
+    // Handle form submission
     const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
         setErrorMessage("");
@@ -45,6 +47,7 @@ const RegisterPage: React.FC = () => {
                 }),
             });
 
+            // Handle registration response
             if (response.ok) {
                 const data = await response.json();
                 setSuccessMessage(data.message);
@@ -61,6 +64,7 @@ const RegisterPage: React.FC = () => {
                     }),
                 });
 
+                // Handle login response
                 if (loginResponse.ok) {
                     const loginData = await loginResponse.json();
                     localStorage.setItem("token", loginData.token);
