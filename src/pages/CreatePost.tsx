@@ -1,121 +1,145 @@
-import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
-import "./CreatePost.css"; // Custom styling
+import React, { useState, ChangeEvent } from "react";
+import "./CreatePost.css";
 import { useAuth } from "../context/AuthContext";
 
 const CreatePost: React.FC = () => {
-    const { token } = useAuth(); // Get the token from AuthContext
-    const navigate = useNavigate();
+    const { token } = useAuth();
+    const [content, setContent] = useState("");
+    const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
+    const [errorMessage, setErrorMessage] = useState<string | null>(null); // For error handling
 
-    // State to handle form inputs and messages
-    const [content, setContent] = useState<string>(""); // State for post content
-    const [images, setImages] = useState<File[]>([]); // State for image files
-    const [errorMessage, setErrorMessage] = useState<string | null>(null); // Error message state
-    const [successMessage, setSuccessMessage] = useState<string | null>(null); // Success message state
+    const MAX_FILES = 5; // Define the maximum number of files allowed
 
-    // Handle image selection
-    const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        if (e.target.files) {
-            setImages(Array.from(e.target.files)); // Convert FileList to an array of files
+    const handleFileSelect = (event: ChangeEvent<HTMLInputElement>) => {
+        if (event.target.files) {
+            const newFiles = Array.from(event.target.files);
+
+            // Check if adding the new files exceeds the limit
+            if (selectedFiles.length + newFiles.length > MAX_FILES) {
+                setErrorMessage(`You can only select up to ${MAX_FILES} files.`);
+                return;
+            }
+
+            setErrorMessage(null); // Clear any previous error
+            setSelectedFiles([...selectedFiles, ...newFiles]);
         }
     };
 
-    // Clear selected images
-    const clearImages = () => {
-        setImages([]); // Clear the images array
+    const handleDeleteFile = (fileIndex: number) => {
+        const updatedFiles = selectedFiles.filter((_, index) => index !== fileIndex);
+        setSelectedFiles(updatedFiles);
+        setErrorMessage(null); // Clear any error as files are removed
     };
 
-    // Handle form submission
-    const handleSubmit = async (e: React.FormEvent) => {
-        e.preventDefault();
+    const handleDeleteAllFiles = () => {
+        setSelectedFiles([]);
+        setErrorMessage(null); // Clear any error as all files are removed
+    };
 
-        // Ensure user is authenticated
-        // Should not be possible to reach this page without being logged in, but added for safety
+    const handleCreatePost = async (event: React.FormEvent) => {
+        event.preventDefault();
+
         if (!token) {
-            setErrorMessage("You must be logged in to create a post.");
-            navigate("/login");
+            console.error("User is not authenticated.");
             return;
         }
 
-        try {
-            const formData = new FormData(); // FormData to send multipart/form-data
-            formData.append("Content", content); // Add post content
-            images.forEach((image) => formData.append("ImageFiles", image)); // Add images
+        const formData = new FormData();
+        formData.append("content", content);
+        selectedFiles.forEach((file) => formData.append("imageFiles", file));
 
-            // Send the create post request to the backend
+        try {
             const response = await fetch("http://localhost:5094/Post/CreatePost", {
                 method: "POST",
                 headers: {
-                    Authorization: `Bearer ${token}`, // Attach the token in the Authorization header
+                    Authorization: `Bearer ${token}`,
                 },
                 body: formData,
             });
 
             if (response.ok) {
-                setSuccessMessage("Post created successfully! Redirecting...");
-                setTimeout(() => navigate("/"), 2000); // Redirect to the homepage after success
+                console.log("Post created successfully!");
+                setContent("");
+                setSelectedFiles([]);
+                setErrorMessage(null); // Clear error if any
+                // Optionally redirect or refresh the page
             } else {
-                const errorData = await response.json();
-                setErrorMessage(errorData.message || "Failed to create post. Please try again.");
+                console.error("Failed to create post.");
             }
         } catch (error) {
-            setErrorMessage("An unexpected error occurred. Please try again later.");
+            console.error("Error while creating post:", error);
         }
     };
 
     return (
         <div className="create-post-container">
-            <h2 className="text-center">Create a Post</h2>
-            <form onSubmit={handleSubmit} className="create-post-form">
-                {/* Error Message */}
-                {errorMessage && <div className="alert alert-danger">{errorMessage}</div>}
+            <form className="create-post-form" onSubmit={handleCreatePost}>
+                <h2 className="create-post-heading">Create a Post</h2>
 
-                {/* Success Message */}
-                {successMessage && <div className="alert alert-success">{successMessage}</div>}
+                {/* Text Content Input */}
+                <textarea
+                    placeholder="Write something..."
+                    value={content}
+                    onChange={(e) => setContent(e.target.value)}
+                    required
+                ></textarea>
 
-                {/* Post Content Input */}
-                <div className="form-floating mb-3">
-                    <textarea
-                        className="form-control"
-                        id="content"
-                        placeholder="Write your post content here..."
-                        value={content}
-                        onChange={(e) => setContent(e.target.value)}
-                        required
-                    ></textarea>
-                    <label htmlFor="content">Content</label>
+                {/* File Input and Buttons */}
+                <div className="file-input-container mt-3">
+                    {/* Choose Images Button */}
+                    <label htmlFor="imageInput" className="btn loginbtn-secondary file-input-button">
+                        Choose Images
+                    </label>
+                    <input
+                        id="imageInput"
+                        type="file"
+                        accept="image/*"
+                        multiple
+                        style={{ display: "none" }}
+                        onChange={handleFileSelect}
+                    />
+
+                    {/* Create Post Button */}
+                    <button
+                        type="submit"
+                        className="btn loginbtn-primary file-input-button mt-1"
+                    >
+                        Create Post
+                    </button>
                 </div>
 
-                {/* File Upload Section */}
-                <div className="mb-3 position-relative">
-                    <input
-                        type="file"
-                        className="custom-file-input"
-                        id="imageFiles"
-                        multiple
-                        accept="image/*"
-                        onChange={handleImageChange}
-                    />
-                    <label htmlFor="imageFiles" className="custom-file-label">
-                        {images.length > 0
-                            ? `${images.length} file(s) selected`
-                            : "Choose Images"}
-                    </label>
-                    {images.length > 0 && (
+                {/* Error Message */}
+                {errorMessage && (
+                    <div className="alert alert-danger mt-3">{errorMessage}</div>
+                )}
+
+                {/* File Information */}
+                {selectedFiles.length > 0 && (
+                    <div>
+                        <p className={"m-2 opacity-75"}>{selectedFiles.length} file{selectedFiles.length > 1 ? "s" : ""} selected</p>
                         <button
                             type="button"
-                            className="btn btn-danger clear-images-btn"
-                            onClick={clearImages}
+                            className="btn btn-danger mb-3"
+                            onClick={handleDeleteAllFiles}
                         >
-                            Clear Images
+                            Delete All
                         </button>
-                    )}
-                </div>
-
-                {/* Submit Button */}
-                <button type="submit" className="btn loginbtn-primary btn-lg w-100">
-                    Create Post
-                </button>
+                        <ul className="file-list">
+                            {selectedFiles.map((file, index) => (
+                                <li key={index} className="file-item">
+                                    {file.name}
+                                    <button
+                                        type="button"
+                                        className="btn btn-danger"
+                                        onClick={() => handleDeleteFile(index)}
+                                    >
+                                        Delete
+                                    </button>
+                                </li>
+                            ))}
+                        </ul>
+                    </div>
+                )}
             </form>
         </div>
     );
