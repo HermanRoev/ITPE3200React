@@ -16,6 +16,27 @@ body{
   color: #f6f6f6 !important;
 }
 
+/* Custom scrollbar using webkit */
+::-webkit-scrollbar {
+  width: 0.4em;
+}
+
+/* Track */
+::-webkit-scrollbar-track {
+  background: rgba(150, 150, 150, 0.04);
+}
+
+/* Handle */
+::-webkit-scrollbar-thumb {
+  background: rgba(118, 146, 154, 0.72);
+  border-radius: 10px;
+}
+
+/* Handle on hover */
+::-webkit-scrollbar-thumb:hover {
+  background: #506165;
+}
+
 i:active, form:active {
   outline: none;
 }
