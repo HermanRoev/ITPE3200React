@@ -47,46 +47,64 @@ const Navbar: React.FC = () => {
                     {/* Navigation Links */}
                     <div className="collapse navbar-collapse" id="navbarNav">
                         <ul className="navbar-nav ms-auto">
-                            <li className="nav-item">
-                                <Link to="/" className="nav-link text-white">
-                                    Home
-                                </Link>
-                            </li>
+                            {/* Large Screen Navbar Links */}
                             {isLoggedIn ? (
                                 <>
-                                    <li className="nav-item">
+                                    <li className="nav-item d-none d-lg-block">
+                                        <Link to="/settings" className="nav-link text-white">
+                                            <i className="bi bi-gear"></i>
+                                        </Link>
+                                    </li>
+                                    <li className="nav-item d-none d-lg-block">
+                                        <Link to="/createpost" className="nav-link text-white d-flex align-items-center">
+                                            <i className="bi bi-plus-circle"></i>
+                                        </Link>
+                                    </li>
+                                    <li className="nav-item d-none d-lg-block">
                                         <Link to="/profile" className="nav-link text-white">
-                                            Profile
+                                            <i className="bi bi-person"></i>
                                         </Link>
-                                    </li>
-                                    <li className="nav-item">
-                                        <Link to="/saved" className="nav-link text-white">
-                                            Saved
-                                        </Link>
-                                    </li>
-                                    <li className="nav-item">
-                                        <Link to="/settings" className="nav-link">
-                                            Settings
-                                        </Link>
-                                    </li>
-                                    <li className="nav-item">
-                                        <button
-                                            onClick={logout}
-                                            className="nav-link btn btn-link text-white"
-                                            style={{textDecoration: 'none', padding: 0}}
-                                        >
-                                            Logout
-                                        </button>
                                     </li>
                                 </>
                             ) : (
                                 <li className="nav-item">
-                                <Link to="/welcome" className="nav-link text-white">
+                                    <Link to="/welcome" className="nav-link text-white">
                                         Login
                                     </Link>
                                 </li>
                             )}
                         </ul>
+
+                        {/* Dropdown Menu for Small/Medium Screens */}
+                        {isLoggedIn && (
+                            <ul className="navbar-nav d-lg-none">
+                                <li className="nav-item">
+                                    <Link to="/" className="nav-link text-white">
+                                        Home
+                                    </Link>
+                                </li>
+                                <li className="nav-item">
+                                    <Link to="/profile" className="nav-link text-white">
+                                        Profile
+                                    </Link>
+                                </li>
+                                <li className="nav-item">
+                                    <Link to="/saved" className="nav-link text-white">
+                                        Saved
+                                    </Link>
+                                </li>
+                                <li className="nav-item">
+                                    <Link to="/createpost" className="nav-link text-white">
+                                        Create
+                                    </Link>
+                                </li>
+                                <li className="nav-item">
+                                    <Link to="/settings" className="nav-link text-white">
+                                        Settings
+                                    </Link>
+                                </li>
+                            </ul>
+                        )}
                     </div>
                 </div>
             </nav>

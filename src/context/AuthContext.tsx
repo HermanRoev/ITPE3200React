@@ -13,6 +13,7 @@ interface AuthContextType {
     userProfile: UserProfile | null;
     login: (token: string) => void;
     logout: () => void;
+    authload: boolean;
 }
 
 export const AuthContext = createContext<AuthContextType>({
@@ -21,6 +22,7 @@ export const AuthContext = createContext<AuthContextType>({
     userProfile: null,
     login: () => {},
     logout: () => {},
+    authload: true,
 });
 
 interface AuthProviderProps {
@@ -30,6 +32,7 @@ interface AuthProviderProps {
 export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     const [token, setToken] = useState<string | null>(null);
     const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
+    const [authload, setAuthload] = useState(true);
 
     // Load token from localStorage on mount
     useEffect(() => {
@@ -37,6 +40,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         if (storedToken) {
             setToken(storedToken);
         }
+        setAuthload(false);
     }, []);
 
     // Fetch user profile whenever token changes
@@ -88,7 +92,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     const isAuthenticated = !!token;
 
     return (
-        <AuthContext.Provider value={{ isAuthenticated, token, userProfile, login, logout }}>
+        <AuthContext.Provider value={{ isAuthenticated, token, userProfile, login, logout, authload }}>
             {children}
         </AuthContext.Provider>
     );

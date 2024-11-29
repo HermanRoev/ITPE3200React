@@ -252,3 +252,8 @@ i:active, form:active {
 .modal-content {
   background-color: #212529 !important;
 }
+
+/* Shadow for icons, helps with white images */
+.icon-drop-shadow {
+  filter: drop-shadow(2px 2px 4px rgba(0, 0, 0, 1));
+}

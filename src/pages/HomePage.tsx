@@ -1,12 +1,15 @@
 import React, { useState, useEffect } from 'react';
 import PostComponent from "../components/PostComponent";
 import { PostDto } from '../models'; // Ensure this path is correct
+import { useAuth} from "../context/AuthContext";
 
 const HomePage: React.FC = () => {
     const [posts, setPosts] = useState<PostDto[]>([]);
     const [loading, setLoading] = useState<boolean>(true);
     const [error, setError] = useState<string | null>(null);
+    const { token, authload  } = useAuth();
 
+    // Aviod loading the posts before the token is loaded from the local storage
     useEffect(() => {
         const fetchPosts = async () => {
             try {
@@ -14,25 +17,34 @@ const HomePage: React.FC = () => {
                     method: 'GET',
                     headers: {
                         'Content-Type': 'application/json',
-                        // 'Authorization': `Bearer ${localStorage.getItem('token')}`, // Uncomment if needed
+                        'Authorization': `Bearer ${token}`, // Uncomment if needed
                     },
                 });
 
                 if (!response.ok) {
-                    throw new Error(`HTTP error! status: ${response.status}`);
+                    const errorData = await response.json();
+                    console.error('Error fetching posts:', errorData.message);
                 }
 
                 const data: PostDto[] = await response.json();
                 setPosts(data);
                 setLoading(false);
+
             } catch (err: any) {
                 setError(err.message || 'An unexpected error occurred');
                 setLoading(false);
             }
         };
 
-        fetchPosts();
-    }, []); // **Empty dependency array ensures this runs only once on mount**
+        if (!authload) {
+            fetchPosts();
+        }
+    }, [authload, token]);
+
+    // Callback to remove a post from the list
+    const handleDeletePost = (postId: string) => {
+        setPosts((prevPosts) => prevPosts.filter((post) => post.postId !== postId));
+    };
 
     if (loading) {
         return (
@@ -75,7 +87,7 @@ const HomePage: React.FC = () => {
                 ) : (
                     posts.map((post) => (
                         <div className="col-12 col-md-8" key={post.postId}>
-                            <PostComponent post={post} />
+                            <PostComponent post={post}  onDeletePost={handleDeletePost}/>
                         </div>
                     ))
                 )}
