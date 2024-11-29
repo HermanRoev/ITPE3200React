@@ -157,7 +157,7 @@ const ProfilePage: React.FC = () => {
                                         Edit Profile
                                     </button>
                                     <button
-                                        className="btn btn-secondary btn-lg w-50"
+                                        className="btn btn-secondary btn-lg  w-50"
                                         onClick={() => setShowCreatePostModal(true)}
                                         style={{ width: "50%" }}
                                     >
