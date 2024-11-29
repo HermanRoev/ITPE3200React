@@ -87,7 +87,7 @@ const SideMenu: React.FC = () => {
                 ) : (
                     <li className="nav-item">
                         <NavLink
-                            to="/login"
+                            to="/welcome"
                             className={({isActive}) =>
                                 isActive ? "nav-link active" : "nav-link"
                             }
