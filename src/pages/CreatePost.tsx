@@ -1,9 +1,11 @@
 import React, { useState, ChangeEvent } from "react";
 import "./CreatePost.css";
 import { useAuth } from "../context/AuthContext";
+import { useNavigate } from "react-router-dom";
 
 const CreatePost: React.FC = () => {
     const { token } = useAuth();
+    const navigate = useNavigate();
     const [content, setContent] = useState("");
     const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
     const [errorMessage, setErrorMessage] = useState<string | null>(null); // For error handling
@@ -62,7 +64,7 @@ const CreatePost: React.FC = () => {
                 setContent("");
                 setSelectedFiles([]);
                 setErrorMessage(null); // Clear error if any
-                // Optionally redirect or refresh the page
+                navigate("/"); // Redirect to home page
             } else {
                 console.error("Failed to create post.");
             }
