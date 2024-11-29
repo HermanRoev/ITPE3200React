@@ -261,7 +261,7 @@ const PostComponent: React.FC<PostComponentProps> = ({ post, onDeletePost }) => 
                             {postData.imageUrls.map((imageUrl, index) => (
                                 <div key={index} className={`carousel-item ${index === 0 ? 'active' : ''}`}>
                                     <img
-                                        src={imageUrl}
+                                        src={`http://localhost:5094${imageUrl}`} // API base URL
                                         className="d-block w-100"
                                         alt="Post"
                                         style={{
