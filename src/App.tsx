@@ -6,6 +6,7 @@ import HomePage from './pages/HomePage';
 import LoginMain from './pages/LoginMain';
 import LoginPage from './pages/LoginPage';
 import RegisterPage from './pages/RegisterPage';
+import SettingsPage from './pages/SettingsPage';
 import ManageProfilePage from './components/ManageProfileNav';
 import ChangeEmailPage from './pages/ChangeEmailPage';
 
@@ -32,6 +33,7 @@ const App: React.FC = () => {
                         <Route path="/welcome" element={<LoginMain />} />
                         <Route path="/login" element={<LoginPage />} />
                         <Route path="/register" element={<RegisterPage />} />
+                        <Route path="/settings" element={<SettingsPage />} />
                         <Route path="/change-email" element={<ChangeEmailPage />}></Route>
 
                     </Routes>
