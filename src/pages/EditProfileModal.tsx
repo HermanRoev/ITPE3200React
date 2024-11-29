@@ -62,7 +62,7 @@ const EditProfileModal: React.FC<EditProfileModalProps> = ({
             </Modal.Header>
             <Modal.Body>
                 <Form onSubmit={handleSubmit}>
-                    <div className="mb-3 text-center">
+                    <div className="mb-4 text-center">
                         {user.profilePictureUrl ? (
                             <img
                                 src={user.profilePictureUrl}
@@ -84,25 +84,34 @@ const EditProfileModal: React.FC<EditProfileModalProps> = ({
                             ></i>
                         )}
                     </div>
+
                     <Form.Group className="mb-3">
-                        <Form.Label>Upload New Profile Picture</Form.Label>
+                        <Form.Label className="text-dark">Upload New Profile Picture</Form.Label>
                         <Form.Control
                             type="file"
                             accept="image/*"
                             onChange={handleFileChange}
                         />
                     </Form.Group>
-                    <Form.Group className="mb-3">
-                        <Form.Label>Bio</Form.Label>
+
+                    <Form.Group className="form-floating mb-3">
                         <Form.Control
                             as="textarea"
                             rows={3}
                             value={bio}
                             onChange={(e) => setBio(e.target.value)}
                             placeholder="Create your bio..."
+                            className="form-control"
                         />
+                        <label htmlFor="bio">Create your Bio</label>
                     </Form.Group>
-                    <Button variant="primary" type="submit" className="w-100">
+
+                    <Button
+                        variant="primary"
+                        type="submit"
+                        className="w-100 btn-lg"
+                        style={{ backgroundColor: "#7cbeea", borderColor: "#7cbeea" }}
+                    >
                         Save Changes
                     </Button>
                 </Form>
@@ -112,4 +121,5 @@ const EditProfileModal: React.FC<EditProfileModalProps> = ({
 };
 
 export default EditProfileModal;
+
 
