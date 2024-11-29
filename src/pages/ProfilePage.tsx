@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from "react";
+import { useAuth } from "../context/AuthContext";
+import { followUser, unfollowUser } from "../services/profileService";
 import EditProfileModal from "./EditProfileModal";
 import CreatePostModal from "./CreatePostModal";
-import { followUser, unfollowUser } from "../services/profileService";
-import { useAuth } from "../context/AuthContext";
 
 interface Post {
     id: string;
@@ -10,7 +10,7 @@ interface Post {
 }
 
 const ProfilePage: React.FC = () => {
-    const { isAuthenticated, userProfile, token, setUserProfile } = useAuth(); // Hent data fra AuthContext, inkludert token
+    const { userProfile, token, setUserProfile } = useAuth(); // Hent data fra AuthContext, inkludert token
     const [user, setUser] = useState(userProfile || null);
     const [posts, setPosts] = useState<Post[]>(userProfile?.posts || []);
     const [gridLayout, setGridLayout] = useState("3x3");
@@ -26,7 +26,7 @@ const ProfilePage: React.FC = () => {
     }, [userProfile]);
 
     const handleFollowToggle = async () => {
-        if (!isAuthenticated || !user || !token) {
+        if (!user || !token) {
             alert("You need to log in to follow/unfollow users.");
             return;
         }
@@ -83,97 +83,137 @@ const ProfilePage: React.FC = () => {
     if (!user) return <p>Loading...</p>;
 
     return (
-        <div className="profile-page container py-5">
-            {/* Profil-oversikt */}
-            <div className="row align-items-center mb-4">
-                <div className="col-md-4 text-center">
-                    {user.profilePictureUrl ? (
-                        <img
-                            src={user.profilePictureUrl}
-                            alt="Profile"
-                            className="profile-picture"
-                            style={{
-                                width: "200px",
-                                height: "200px",
-                                objectFit: "cover",
-                                borderRadius: "1.2em",
-                            }}
-                        />
-                    ) : (
-                        <div
-                            className="bg-secondary rounded-circle d-flex justify-content-center align-items-center"
-                            style={{
-                                width: "200px",
-                                height: "200px",
-                                borderRadius: "1.2em",
-                            }}
-                        >
-                            <i className="bi bi-person fs-1 text-white"></i>
-                        </div>
-                    )}
-                </div>
-                <div className="col-md-8 text-center text-md-start">
-                    <h1 className="fw-bold">{user.username}</h1>
-                    <p className="text-white">{user.bio}</p>
-                    <div className="d-flex justify-content-center justify-content-md-between mb-3">
-                        <span>{posts.length} Posts</span>
-                        <span>{user.followers} Followers</span>
-                        <span>{user.following} Following</span>
-                    </div>
-                    <div className="mt-3">
-                        {userProfile?.username === user.username ? (
-                            <>
-                                <button
-                                    className="btn btn-primary me-3"
-                                    onClick={() => setShowEditModal(true)}
-                                >
-                                    Edit Profile
-                                </button>
-                                <button
-                                    className="btn btn-secondary"
-                                    onClick={() => setShowCreatePostModal(true)}
-                                >
-                                    Create Post
-                                </button>
-                            </>
+        <div className="profile-page bg-transparent text-light py-5" style={{ backgroundColor: "#222", color: "#fff" }}>
+            <div className="container">
+                {/* Profile Section */}
+                <div className="row align-items-center justify-content-center mb-5">
+                    {/* Profile Image */}
+                    <div className="col-md-4 col-lg-3 text-center text-md-start mb-4 mb-md-0 d-flex justify-content-center">
+                        {user.profilePictureUrl ? (
+                            <img
+                                src={user.profilePictureUrl}
+                                alt="Profile Picture"
+                                className="profile-picture"
+                                style={{
+                                    width: "200px",
+                                    height: "200px",
+                                    objectFit: "cover",
+                                    borderRadius: "1.2em",
+                                    marginRight: "2em",
+                                }}
+                            />
                         ) : (
-                            <button
-                                className={`btn ${isFollowing ? "btn-secondary" : "btn-primary"}`}
-                                onClick={handleFollowToggle}
+                            <div
+                                className="bg-secondary d-flex justify-content-center align-items-center"
+                                style={{
+                                    width: "200px",
+                                    height: "200px",
+                                    borderRadius: "1.2em",
+                                    marginRight: "2em",
+                                }}
                             >
-                                {isFollowing ? "Unfollow" : "Follow"}
-                            </button>
+                                <i className="bi bi-person fs-1 text-white"></i>
+                            </div>
                         )}
                     </div>
-                </div>
-            </div>
-            {/* Posts */}
-            <div className="d-flex justify-content-center mb-3">
-                <i
-                    className={`bi bi-grid-3x3-gap ${gridLayout === "3x3" ? "text-primary" : "text-muted"}`}
-                    style={{ fontSize: "1.5rem", cursor: "pointer", marginRight: "1rem" }}
-                    onClick={() => toggleGridLayout("3x3")}
-                ></i>
-                <i
-                    className={`bi bi-grid ${gridLayout === "2x2" ? "text-primary" : "text-muted"}`}
-                    style={{ fontSize: "1.5rem", cursor: "pointer" }}
-                    onClick={() => toggleGridLayout("2x2")}
-                ></i>
-            </div>
-            <div className={`row ${gridLayout === "3x3" ? "row-cols-3" : "row-cols-2"} g-3`}>
-                {posts.map((post) => (
-                    <div key={post.id} className="col">
-                        <div className="card border-0">
-                            <img
-                                src={post.imageUrl}
-                                alt={`Post ${post.id}`}
-                                className="card-img-top"
-                                style={{ objectFit: "cover", height: "200px" }}
-                            />
+
+                    {/* Profile Info */}
+                    <div className="col-md-8 col-lg-6 text-center text-md-start">
+                        <h1
+                            className="display-6 fw-bold"
+                            style={{
+                                fontSize: "clamp(1.2em, 3.5vw, 2.5em)",
+                                whiteSpace: "nowrap",
+                                overflow: "hidden",
+                                textOverflow: "ellipsis",
+                            }}
+                        >
+                            {user.username}
+                        </h1>
+                        <p className="lead" style={{ fontSize: "1.3em", color: "#aaa" }}>
+                            {user.bio}
+                        </p>
+
+                        <div className="d-flex justify-content-center justify-content-md-between mb-3 post-info-container">
+                            <span className="post-info" style={{ fontSize: "clamp(1em, 2vw, 1.4em)", color: "#bbb", margin: "0 1em" }}>
+                                {posts.length} Posts
+                            </span>
+                            <span className="post-info" style={{ fontSize: "clamp(1em, 2vw, 1.4em)", color: "#bbb", margin: "0 1em" }}>
+                                {user.followers} Followers
+                            </span>
+                            <span className="post-info" style={{ fontSize: "clamp(1em, 2vw, 1.4em)", color: "#bbb", margin: "0 1em" }}>
+                                {user.following} Following
+                            </span>
+                        </div>
+
+                        <div className="d-flex justify-content-center justify-content-md-start">
+                            {userProfile?.username === user.username ? (
+                                <>
+                                    <button
+                                        className="btn loginbtn-primary btn-lg me-3 w-50"
+                                        onClick={() => setShowEditModal(true)}
+                                        style={{ width: "50%" }}
+                                    >
+                                        Edit Profile
+                                    </button>
+                                    <button
+                                        className="btn btn-secondary btn-lg w-50"
+                                        onClick={() => setShowCreatePostModal(true)}
+                                        style={{ width: "50%" }}
+                                    >
+                                        Create Post
+                                    </button>
+                                </>
+                            ) : (
+                                <button
+                                    className={`btn ${isFollowing ? "btn-secondary" : "btn-primary"}`}
+                                    onClick={handleFollowToggle}
+                                    style={{ width: "100%" }}
+                                >
+                                    {isFollowing ? "Unfollow" : "Follow"}
+                                </button>
+                            )}
                         </div>
                     </div>
-                ))}
+                </div>
+
+                {/* Grid Layout Buttons */}
+                <div className="d-flex justify-content-evenly icon-section">
+                    <div className="me-5">
+                        <i
+                            id="grid-3x3"
+                            className={`bi bi-grid-3x3-gap grid-icon ${gridLayout === "3x3" ? "active-icon" : ""}`}
+                            onClick={() => toggleGridLayout("3x3")}
+                        ></i>
+                    </div>
+                    <div className="ms-5">
+                        <i
+                            id="grid-2x2"
+                            className={`bi bi-grid grid-icon ${gridLayout === "2x2" ? "active-icon" : ""}`}
+                            onClick={() => toggleGridLayout("2x2")}
+                        ></i>
+                    </div>
+                </div>
+
+                {/* User Posts Section */}
+                <div id="post-grid" className="profile-posts mt-3 container-fluid px-0 px-md-3">
+                    <div id="grid-layout" className={`row row-cols-1 row-cols-sm-2 row-cols-md-3 g-3 justify-content-center ${gridLayout === "2x2" ? "row-cols-md-2" : ""}`}>
+                        {posts.map((post) => (
+                            <div key={post.id} className="col">
+                                <div className="card h-100 border-0">
+                                    <img
+                                        src={post.imageUrl}
+                                        alt={`Post ${post.id}`}
+                                        className="card-img-top"
+                                        style={{ objectFit: "cover", height: "200px" }}
+                                    />
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+                </div>
             </div>
+
             <EditProfileModal
                 show={showEditModal}
                 handleClose={() => setShowEditModal(false)}
@@ -190,6 +230,9 @@ const ProfilePage: React.FC = () => {
 };
 
 export default ProfilePage;
+
+
+
 
 
 
