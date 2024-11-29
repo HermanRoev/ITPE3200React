@@ -36,7 +36,7 @@ const ChangeEmailPage: React.FC = () => {
 
     return (
         <div className="change-email-page">
-            <h2>Change Email</h2>
+            <h3>Change Email</h3>
             <form id="email-form" onSubmit={handleChangeEmail}>
                 {emailConfirmed ? (
                     <div className="form-floating mb-3 input-group">

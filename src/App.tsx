@@ -11,6 +11,7 @@ import SettingsPage from './pages/SettingsPage';
 import ManageProfilePage from './components/ManageProfileNav';
 import ChangeEmailPage from './pages/ChangeEmailPage';
 import ChangePassword from "./pages/ChangePassword";
+import PersonalDataPage from "./pages/PersonalDataPage";
 
 
 const App: React.FC = () => {
@@ -39,7 +40,7 @@ const App: React.FC = () => {
                         <Route path="/settings" element={<SettingsPage />} />
                         <Route path="/change-email" element={<ChangeEmailPage />} />
                         <Route path="/change-password" element={<ChangePassword />} />
-
+                        <Route path="/delete-personal-data" element={<PersonalDataPage />} />
                     </Routes>
                 </div>
             </div>
