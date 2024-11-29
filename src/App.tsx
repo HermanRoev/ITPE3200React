@@ -10,6 +10,7 @@ import CreatePost from './pages/CreatePost';
 import SettingsPage from './pages/SettingsPage';
 import ManageProfilePage from './components/ManageProfileNav';
 import ChangeEmailPage from './pages/ChangeEmailPage';
+import ChangePassword from "./pages/ChangePassword";
 
 
 const App: React.FC = () => {
@@ -36,7 +37,8 @@ const App: React.FC = () => {
                         <Route path="/register" element={<RegisterPage />} />
                         <Route path="/createpost" element={<CreatePost />} />
                         <Route path="/settings" element={<SettingsPage />} />
-                        <Route path="/change-email" element={<ChangeEmailPage />}></Route>
+                        <Route path="/change-email" element={<ChangeEmailPage />} />
+                        <Route path="/change-password" element={<ChangePassword />} />
 
                     </Routes>
                 </div>

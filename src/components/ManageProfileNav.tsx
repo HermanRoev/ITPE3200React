@@ -2,6 +2,7 @@ import React from 'react';
 import { NavLink } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { useNavigate } from "react-router-dom";
+import './ManageProfileNav.css';
 
 const ManageProfileNav: React.FC = () => {
     const { isAuthenticated } = useAuth();
@@ -54,6 +55,17 @@ const ManageProfileNav: React.FC = () => {
                 >
                     Personal Data
                 </NavLink>
+            </li>
+            <li className="nav-item">
+                <form className="form-inline" onSubmit={handleLogout}>
+                    <button
+                        type="submit"
+                        className="nav-link logout-button"
+                        id="logout"
+                    >
+                        Click here to Logout <i className="bi bi-door-closed"></i>
+                    </button>
+                </form>
             </li>
         </ul>
     );
