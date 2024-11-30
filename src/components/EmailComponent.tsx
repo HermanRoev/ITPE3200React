@@ -12,7 +12,7 @@ const EmailComponent = () => {
     const handleChangeEmail = async (e: React.FormEvent) => {
         e.preventDefault();
         try {
-            const response = await fetch("http://localhost:5094/Auth/login", {
+            const response = await fetch("http://localhost:5094/Auth/ChangeEmail", {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
