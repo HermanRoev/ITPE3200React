@@ -1,6 +1,5 @@
 import React, {useState} from "react";
 import {useAuth} from "../context/AuthContext";
-import './EmailComponent.css';
 
 const EmailComponent = () => {
     const { token } = useAuth(); // Get the authentication token

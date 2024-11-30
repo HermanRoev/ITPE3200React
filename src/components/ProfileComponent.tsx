@@ -46,9 +46,9 @@ const ProfileComponent = () => {
             setErrorMessage("Phone number must be exactly 8 digits.");
             return;
         }
-
+        //TODO:fetch riktig url
         try {
-            const response = await fetch("/api/user/profile", {
+            const response = await fetch("http://localhost:5094/", {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
