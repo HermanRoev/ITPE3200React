@@ -12,7 +12,7 @@ import ManageProfilePage from './components/ManageProfileNav';
 import ChangeEmailPage from './pages/ChangeEmailPage';
 import ChangePassword from "./pages/ChangePassword";
 import PersonalDataPage from "./pages/PersonalDataPage";
-
+import EditPostPage from './pages/EditPostPage';
 
 const App: React.FC = () => {
     const location = useLocation(); // Hook for checking the current route
@@ -41,6 +41,8 @@ const App: React.FC = () => {
                         <Route path="/change-email" element={<ChangeEmailPage />} />
                         <Route path="/change-password" element={<ChangePassword />} />
                         <Route path="/delete-personal-data" element={<PersonalDataPage />} />
+                        <Route path="/change-email" element={<ChangeEmailPage />}></Route>
+                        <Route path="/post/edit/:postId" element={<EditPostPage />} />
                     </Routes>
                 </div>
             </div>
