@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useAuth } from '../context/AuthContext';
 
 const PasswordComponent: React.FC = () => {
     const [formData, setFormData] = useState({
@@ -6,49 +7,31 @@ const PasswordComponent: React.FC = () => {
         newPassword: '',
         confirmNewPassword: '',
     });
-
+    const { token } = useAuth();
     const [errorMessage, setErrorMessage] = useState<string | null>(null);
     const [successMessage, setSuccessMessage] = useState<string | null>(null);
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        const { name, value } = e.target;
         setFormData({
             ...formData,
-            [name]: value,
+            [e.target.id]: e.target.value,
         });
-    };
-
-    const validateInput = () => {
-        if (!formData.oldPassword || !formData.newPassword || !formData.confirmNewPassword) {
-            return 'All fields are required.';
-        }
-        if (formData.newPassword.length < 6) {
-            return 'New password must be at least 6 characters long.';
-        }
-        if (formData.newPassword !== formData.confirmNewPassword) {
-            return 'New password and confirmation password do not match.';
-        }
-        return null;
     };
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
 
         // Clear previous messages
-        setErrorMessage(null);
-        setSuccessMessage(null);
-
-        // Validate input
-        const validationError = validateInput();
-        if (validationError) {
-            setErrorMessage(validationError);
-            return;
-        }
+        setErrorMessage("");
+        setSuccessMessage("");
 
         try {
-            const response = await fetch('/api/auth/change-password', {
+            const response = await fetch('http://localhost:5094/Auth/change-password', {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json',
+                },
                 body: JSON.stringify({
                     oldPassword: formData.oldPassword,
                     newPassword: formData.newPassword,
@@ -69,57 +52,63 @@ const PasswordComponent: React.FC = () => {
     };
 
     return (
-        <form className="change-password-form" onSubmit={handleSubmit}>
-            {errorMessage && (
-                <div className="text-danger mb-3" role="alert">
-                    {errorMessage}
+        <div className="change-password">
+            <h2>Change Password</h2>
+            <form className="change-password-form" onSubmit={handleSubmit}>
+                {errorMessage && (
+                    <div className="text-danger mb-3" role="alert">
+                        {errorMessage}
+                    </div>
+                )}
+                {successMessage && (
+                    <div className="text-success mb-3">
+                        {successMessage}
+                    </div>
+                )}
+                <div className="form-floating mb-4 text-black">
+                    <input
+                        id={'oldPassword'}
+                        type="password"
+                        name="oldPassword"
+                        className="form-control"
+                        placeholder="Please enter your old password."
+                        value={formData.oldPassword}
+                        onChange={handleChange}
+                        required
+                    />
+                    <label>Old Password</label>
                 </div>
-            )}
-            {successMessage && (
-                <div className="text-success mb-3">
-                    {successMessage}
+                <div className="form-floating mb-4 text-black">
+                    <input
+                        id={'newPassword'}
+                        type="password"
+                        name="newPassword"
+                        className="form-control"
+                        placeholder="Please enter your new password."
+                        value={formData.newPassword}
+                        onChange={handleChange}
+                        required
+                    />
+                    <label>New Password</label>
                 </div>
-            )}
-            <div className="form-floating mb-4 text-black">
-                <input
-                    type="password"
-                    name="oldPassword"
-                    className="form-control"
-                    placeholder="Please enter your old password."
-                    value={formData.oldPassword}
-                    onChange={handleChange}
-                    required
-                />
-                <label>Old Password</label>
-            </div>
-            <div className="form-floating mb-4 text-black">
-                <input
-                    type="password"
-                    name="newPassword"
-                    className="form-control"
-                    placeholder="Please enter your new password."
-                    value={formData.newPassword}
-                    onChange={handleChange}
-                    required
-                />
-                <label>New Password</label>
-            </div>
-            <div className="form-floating mb-4 text-black">
-                <input
-                    type="password"
-                    name="confirmNewPassword"
-                    className="form-control"
-                    placeholder="Please confirm your new password."
-                    value={formData.confirmNewPassword}
-                    onChange={handleChange}
-                    required
-                />
-                <label>Confirm New Password</label>
-            </div>
-            <button type="submit" className="btn loginbtn-primary btn-lg w-100">
-                Update Password
-            </button>
-        </form>
+                <div className="form-floating mb-4 text-black">
+                    <input
+                        id={'confirmNewPassword'}
+                        type="password"
+                        name="confirmNewPassword"
+                        className="form-control"
+                        placeholder="Please confirm your new password."
+                        value={formData.confirmNewPassword}
+                        onChange={handleChange}
+                        required
+                    />
+                    <label>Confirm New Password</label>
+                </div>
+                <button type="submit" className="btn loginbtn-primary btn-lg w-100">
+                    Update Password
+                </button>
+            </form>
+        </div>
     );
 };
 
