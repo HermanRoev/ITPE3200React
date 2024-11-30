@@ -38,7 +38,7 @@ const EmailComponent = () => {
         <div className="change-email-page">
             <h2>Change Email</h2>
             <form id="email-form" onSubmit={handleChangeEmail}>
-                <div className="form-floating mb-3 input-group">
+                <div className="form-floating mb-3 input-group text-black">
                     <input
                         type="email"
                         className="form-control"
@@ -51,7 +51,7 @@ const EmailComponent = () => {
                         <span className="h-100 input-group-text text-success font-weight-bold">✓</span>
                     </div>
                 </div>
-                <div className="form-floating mb-3">
+                <div className="form-floating mb-3 text-black">
                     <input
                         type="email"
                         className="form-control"

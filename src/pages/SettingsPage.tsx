@@ -82,7 +82,7 @@ const SettingsPage = () => {
             </div>
 
             {/* Dynamic content area */}
-            <div className="col-auto">
+            <div className="col-4">
                 <Routes>
                     <Route path="profile" element={<ProfileComponent/>}/>
                     <Route path="email" element={<EmailComponent/>}/>
