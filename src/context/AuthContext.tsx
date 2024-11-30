@@ -85,8 +85,6 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         localStorage.removeItem('token');
         setToken(null);
         setUserProfile(null);
-        // Redirect to login page
-        window.location.href = "/";
     };
 
     const isAuthenticated = !!token;
