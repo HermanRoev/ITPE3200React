@@ -1,13 +1,10 @@
-import React, { createContext, useState, useEffect, ReactNode } from "react";
+// src/context/AuthContext.tsx
 
-// Definerer strukturen for UserProfile
+import React, { createContext, useState, useEffect, ReactNode } from 'react';
+
 interface UserProfile {
     username: string;
-    bio: string;
     profilePictureUrl: string;
-    followers: number;
-    following: number;
-    posts: { id: string; imageUrl: string }[]; // Enkel struktur for postene
 }
 
 interface AuthContextType {
@@ -16,7 +13,7 @@ interface AuthContextType {
     userProfile: UserProfile | null;
     login: (token: string) => void;
     logout: () => void;
-    setUserProfile: (userProfile: UserProfile | null) => void; // Funksjon for å oppdatere userProfile
+    authload: boolean;
 }
 
 export const AuthContext = createContext<AuthContextType>({
@@ -25,7 +22,7 @@ export const AuthContext = createContext<AuthContextType>({
     userProfile: null,
     login: () => {},
     logout: () => {},
-    setUserProfile: () => {}, // Sett en tom funksjon som kan bli brukt til å oppdatere userProfile
+    authload: true,
 });
 
 interface AuthProviderProps {
@@ -35,16 +32,18 @@ interface AuthProviderProps {
 export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     const [token, setToken] = useState<string | null>(null);
     const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
+    const [authload, setAuthload] = useState(true);
 
-    // Hent token fra localStorage på første oppstart
+    // Load token from localStorage on mount
     useEffect(() => {
-        const storedToken = localStorage.getItem("token");
+        const storedToken = localStorage.getItem('token');
         if (storedToken) {
             setToken(storedToken);
         }
+        setAuthload(false);
     }, []);
 
-    // Hent brukerens profildata når token er tilgjengelig
+    // Fetch user profile whenever token changes
     useEffect(() => {
         const fetchProfile = async () => {
             if (!token) {
@@ -53,7 +52,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
             }
 
             try {
-                const response = await fetch("http://localhost:5094/Profile/loggedin", {
+                const response = await fetch("http://localhost:5094/Profile/basic", {
                     method: "GET",
                     headers: {
                         Authorization: `Bearer ${token}`,
@@ -62,17 +61,8 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
                 });
 
                 if (response.ok) {
-                    const data: { profile: UserProfile; posts: UserProfile["posts"] } = await response.json();
-
-                    // Sørg for at followers og following er definert, hvis ikke settes de til 0
-                    const userProfileData = {
-                        ...data.profile,
-                        posts: data.posts,
-                        followers: data.profile.followers || 0,  // Hvis ikke, sett til 0
-                        following: data.profile.following || 0,  // Hvis ikke, sett til 0
-                    };
-
-                    setUserProfile(userProfileData);
+                    const data: UserProfile = await response.json();
+                    setUserProfile(data);
                 } else {
                     console.error("Failed to fetch profile data");
                     setUserProfile(null);
@@ -87,27 +77,25 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     }, [token]);
 
     const login = (userToken: string) => {
-        localStorage.setItem("token", userToken);
+        localStorage.setItem('token', userToken);
         setToken(userToken);
     };
 
     const logout = () => {
-        localStorage.removeItem("token");
+        localStorage.removeItem('token');
         setToken(null);
         setUserProfile(null);
+        // Redirect to login page
         window.location.href = "/";
     };
 
     const isAuthenticated = !!token;
 
     return (
-        <AuthContext.Provider value={{ isAuthenticated, token, userProfile, login, logout, setUserProfile }}>
+        <AuthContext.Provider value={{ isAuthenticated, token, userProfile, login, logout, authload }}>
             {children}
         </AuthContext.Provider>
     );
 };
 
 export const useAuth = () => React.useContext(AuthContext);
-
-
-
