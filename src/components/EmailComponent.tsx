@@ -8,6 +8,8 @@ const EmailComponent = () => {
     const [message, setMessage] = useState('');
     const [error, setError] = useState('');
 
+    //TODO: kommentar
+    //TODO: fikse slik at fetch fungerer riktig
     const handleChangeEmail = async (e: React.FormEvent) => {
         e.preventDefault();
         try {

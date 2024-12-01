@@ -1,10 +1,13 @@
 import React, {useEffect} from "react";
 
 const ProfileComponent = () => {
+    // State to store form data
     const [username, setUsername] = React.useState("");
     const [phoneNumber, setPhoneNumber] = React.useState("");
     const [errorMessage, setErrorMessage] = React.useState<string | null>(null);
 
+    // Fetch profile data
+    //TODO:fikse slik at fetch fungerer riktig
     useEffect(() => {
         const fetchProfileData = async () => {
             try {
@@ -101,8 +104,6 @@ const ProfileComponent = () => {
             </form>
         </div>
     )
-
-
 };
 
 export default ProfileComponent;

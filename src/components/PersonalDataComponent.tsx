@@ -1,11 +1,14 @@
 import React, { useState, useEffect } from "react";
 
 const PersonalDataComponent = () => {
+    //TODO: legge til kommentarer
+
     const [password, setPassword] = useState("");
     const [requirePassword, setRequirePassword] = useState(false); // Simulate server-determined requirement
     const [errorMessage, setErrorMessage] = useState<string | null>(null);
     const [isSubmitting, setIsSubmitting] = useState(false);
 
+    //TODO:fetch rikitg
     useEffect(() => {
         const fetchSettings = async () => {
             try {
