@@ -11,6 +11,7 @@ const SettingsPage = () => {
     const { logout } = useContext(AuthContext);
     const navigate = useNavigate();
 
+    // Function to handle logout
     const handleLogout = async () => {
         try {
             const response = await fetch("http://localhost:5094/Auth/logout", {
@@ -84,7 +85,7 @@ const SettingsPage = () => {
             </div>
 
             {/* Dynamic content area */}
-            <div className="col-4">
+            <div className="col-5">
                 <Routes>
                     <Route path="profile" element={<ProfileComponent/>}/>
                     <Route path="email" element={<EmailComponent/>}/>

@@ -75,7 +75,8 @@ const PersonalDataComponent = () => {
     };
 
     return (
-        <div>
+        <div className ="deactivate-accont">
+            <h2>Delete your account</h2>
             <div className="alert alert-warning" role="alert">
                 <p>
                     <strong>

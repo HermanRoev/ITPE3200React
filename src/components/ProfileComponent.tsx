@@ -1,77 +1,51 @@
-import React, {useEffect} from "react";
+import React, {FormEvent, useEffect, useState} from "react";
 import {useAuth} from "../context/AuthContext";
 
 const ProfileComponent = () => {
     // State to store form data
-    const { token } = useAuth();
+    const { token, userProfile } = useAuth();
     const [username, setUsername] = React.useState("");
     const [phoneNumber, setPhoneNumber] = React.useState("");
-    const [errorMessage, setErrorMessage] = React.useState<string | null>(null);
+    const [errorMessage, setErrorMessage] = useState<string[]>([]);
 
-    // Fetch profile data
-    //TODO:fikse slik at fetch fungerer riktig
-    useEffect(() => {
-        const fetchProfileData = async () => {
-            try {
-                const response = await fetch("http://localhost:5094/User/GetProfile", {
-                    method: "GET",
-                    headers: {
-                        'Authorization': `Bearer ${token}`,
-                        'Content-Type': 'application/json',
-                    },
-                });
-
-                if (response.ok) {
-                    const profileData = await response.json();
-                    setUsername(profileData.username);
-                } else {
-                    const errorData = await response.json();
-                    setErrorMessage(errorData.message || "Failed to fetch profile data.");
-                }
-            } catch (error) {
-                console.error("An unexpected error occurred:", error);
-                setErrorMessage("Failed to fetch profile data. Please try again later.");
-            }
-        };
-
-        fetchProfileData();
-    }, []);
-
-    const handlePhoneNumberChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-        const value = event.target.value;
-        if (/^\d{0,8}$/.test(value)) {
-            setPhoneNumber(value);
-            setErrorMessage("");
-        } else {
-            setErrorMessage("Phone number must be exactly 8 digits.");
-        }
+    // Function to validate the phone number (exactly 8 digits)
+    const validatePhoneNumber = (number: string): boolean => {
+        const regex = /^\d{8}$/;
+        return regex.test(number);
     };
 
-    const handleSubmit = async (event: React.FormEvent) => {
+    // Handle form submission
+    const handleSubmit = (event: FormEvent) => {
         event.preventDefault();
-        if (phoneNumber.length !== 8) {
-            setErrorMessage("Phone number must be exactly 8 digits.");
+        setErrorMessage([]) // Clear previous errors
+
+        // Validate phone number
+        if (!validatePhoneNumber(phoneNumber)) {
+            setErrorMessage(['Phone number must be exactly 8 digits.']);
             return;
         }
-        //TODO:fetch riktig url
-        try {
-            const response = await fetch("http://localhost:5094/", {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                },
-                body: JSON.stringify({ phoneNumber }),
-            });
 
-            if (response.ok) {
-                alert("Profile updated successfully.");
-            } else {
-                const errorData = await response.json();
-                setErrorMessage(errorData.message || "Failed to update profile.");
-            }
-        } catch (error) {
-            setErrorMessage("An error occurred while updating the profile.");
-        }
+        // Submit the updated phone number to the backend
+        fetch('/api/user/update', { // Adjust the API endpoint as needed
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ phoneNumber }),
+        })
+            .then(response => {
+                if (response.ok) {
+                    // Handle success (e.g., display a success message)
+                    console.log('Profile updated successfully.');
+                } else {
+                    // Handle server-side validation errors
+                    response.json().then(data => {
+                        setErrorMessage(data.errors || ['An error occurred while updating the profile.']);
+                    });
+                }
+            })
+            .catch(error => {
+                console.error('Error updating profile:', error);
+                setErrorMessage(['An error occurred while updating the profile.']);
+            });
     };
 
     return (
@@ -86,7 +60,7 @@ const ProfileComponent = () => {
                         type="text"
                         className="form-control"
                         placeholder="Username"
-                        value={username}
+                        value={userProfile?.username}
                         disabled
                     />
                     <label className="form-label">Username</label>
@@ -97,7 +71,7 @@ const ProfileComponent = () => {
                         className="form-control"
                         placeholder="Please enter your phone number."
                         value={phoneNumber}
-                        onChange={handlePhoneNumberChange}
+                        onChange={(e) => setPhoneNumber(e.target.value)}
                     />
                     <label className="form-label">Phone Number</label>
                     <span className="text-danger">{errorMessage}</span>

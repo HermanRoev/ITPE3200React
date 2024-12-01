@@ -2,7 +2,7 @@ import React, {useState} from "react";
 import {useAuth} from "../context/AuthContext";
 
 const EmailComponent = () => {
-    const { token } = useAuth(); // Get the authentication token
+    const { token, userProfile } = useAuth(); // Get the authentication token
     const [newEmail, setNewEmail] = useState('');
     const [message, setMessage] = useState('');
     const [error, setError] = useState('');
@@ -38,18 +38,14 @@ const EmailComponent = () => {
         <div className="change-email-page">
             <h2>Change Email</h2>
             <form id="email-form" onSubmit={handleChangeEmail}>
-                <div className="form-floating mb-3 input-group text-black">
+                <div className="form-floating mb-3 text-black">
                     <input
                         type="email"
                         className="form-control"
-                        value={newEmail}
-                        onChange={(e) => setNewEmail(e.target.value)}
+                        value={userProfile?.email}
                         disabled
                     />
                     <label className="label-name">Current Email</label>
-                    <div className="input-group-append">
-                        <span className="h-100 input-group-text text-success font-weight-bold">✓</span>
-                    </div>
                 </div>
                 <div className="form-floating mb-3 text-black">
                     <input
