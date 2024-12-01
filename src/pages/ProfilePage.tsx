@@ -136,7 +136,7 @@ const ProfilePage = () => {
             if (!response.ok) {
                 const errorData = await response.json();
                 setErrorMessage(errorData.message || 'Failed to update the profile');
-                }
+            }
             setSuccessMessage('Profile updated successfully');
 
             await fetchProfileData(); // Fetch the updated profile data
@@ -454,7 +454,6 @@ const ProfilePage = () => {
                                                 Save Changes
                                             </button>
                                         </div>
-
                                         {errorMessage && <div className="alert alert-danger">{errorMessage}</div>}
                                         {successMessage && <div className="alert alert-success">{successMessage}</div>}
                                     </form>

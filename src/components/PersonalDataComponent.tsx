@@ -1,115 +1,142 @@
-import React, { useState, useEffect } from "react";
-import {AuthContext, useAuth} from "../context/AuthContext";
+import React, { useState } from "react";
+import { useAuth } from "../context/AuthContext";
 
 const PersonalDataComponent = () => {
-    //TODO: legge til kommentarer
-    const { token } = useAuth();
+    const { token, logout } = useAuth();
     const [password, setPassword] = useState("");
-    const [requirePassword, setRequirePassword] = useState(false); // Simulate server-determined requirement
     const [errorMessage, setErrorMessage] = useState<string | null>(null);
+    const [successMessage, setSuccessMessage] = useState<string | null>(null);
     const [isSubmitting, setIsSubmitting] = useState(false);
+    const [showModal, setShowModal] = useState(false);
 
-    //TODO:fetch rikitg
-    useEffect(() => {
-        const fetchSettings = async () => {
-            try {
-                const response = await fetch("http://localhost:5094/User/Settings", {
-                    method: "GET",
-                    headers: {
-                        'Authorization': `Bearer ${token}`,
-                        'Content-Type': 'application/json',
-                    },
-                });
-
-                if (response.ok) {
-                    const settingsData = await response.json();
-                    setRequirePassword(settingsData.requirePassword);
-                } else {
-                    const errorData = await response.json();
-                    setErrorMessage(errorData.message || "Failed to fetch settings.");
-                }
-            } catch (error) {
-                console.error("An unexpected error occurred:", error);
-                setErrorMessage("Failed to fetch settings. Please try again later.");
-            }
-        };
-
-        fetchSettings();
-    }, []);
-
+    // Handle input change
     const handlePasswordChange = (event: React.ChangeEvent<HTMLInputElement>) => {
         setPassword(event.target.value);
         setErrorMessage(null);
+        setSuccessMessage(null);
     };
 
+    // Open modal
+    const handleShowModal = () => setShowModal(true);
+
+    // Close modal and reset states
+    const handleCloseModal = () => {
+        setShowModal(false);
+        setPassword("");
+        setErrorMessage(null);
+        setSuccessMessage(null);
+    };
+
+    // Handle form submission
     const handleSubmit = async (event: React.FormEvent) => {
         event.preventDefault();
-        if (requirePassword && password.trim() === "") {
+
+        // Input validation
+        if (password.trim() === "") {
             setErrorMessage("Password is required.");
             return;
         }
 
         setIsSubmitting(true);
         try {
-            const response = await fetch("http://localhost:5094/User/DeleteAccount", {
+            const response = await fetch("http://localhost:5094/Auth/delete-personal-data", { // Ensure this URL matches your backend route
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
-                    Authorization: `Bearer ${localStorage.getItem("token")}`,
+                    "Authorization": `Bearer ${token}`,
                 },
-                body: JSON.stringify({
-                    password: requirePassword ? password : undefined,
-                }),
+                body: JSON.stringify(password),
             });
 
             if (response.ok) {
-                alert("Your account has been deleted.");
-                window.location.href = "/"; // Redirect to home page
+                const data = await response.json();
+                setSuccessMessage(data.message || "Your account has been deleted successfully.");
+
+                // Logout user
+                logout();
+
+                // Optionally, redirect the user after a short delay to show success message
+                setTimeout(() => {
+                    window.location.href = "/"; // Redirect to home or signup page
+                }, 2000);
             } else {
                 const errorData = await response.json();
-                setErrorMessage(errorData.message || "Failed to delete account.");
+                setErrorMessage(errorData.message || "Failed to delete your account.");
             }
         } catch (error) {
-            setErrorMessage("An error occurred while deleting the account. Please try again later.");
+            setErrorMessage("An error occurred while deleting your account. Please try again later.");
+            console.error("Delete account error:", error);
+        } finally {
+            setIsSubmitting(false);
         }
     };
 
     return (
-        <div className ="deactivate-accont">
-            <h2>Delete your account</h2>
+        <div className="deactivate-account">
+            <h2>Delete Your Account</h2>
             <div className="alert alert-warning" role="alert">
                 <p>
                     <strong>
-                        Deleting this data will permanently remove your account, and this cannot be recovered.
+                        Deleting this account will permanently remove all your data, including posts and images. This action cannot be undone.
                     </strong>
                 </p>
             </div>
 
-            <form id="delete-user" onSubmit={handleSubmit}>
-                {errorMessage && (
-                    <div className="text-danger" role="alert">
-                        {errorMessage}
-                    </div>
-                )}
+            {/* Trigger Button */}
+            <button className="btn btn-danger" onClick={handleShowModal}>
+                Delete Account
+            </button>
 
-                {requirePassword && (
-                    <div className="form-floating mb-3">
-                        <input
-                            type="password"
-                            className="form-control"
-                            placeholder="Enter your password"
-                            value={password}
-                            onChange={handlePasswordChange}
-                            required
-                        />
-                        <label>Password</label>
-                    </div>
-                )}
+            {/* Delete Account Modal */}
+            {showModal && (
+                <div
+                    className="modal fade show"
+                    tabIndex={-1}
+                    style={{ display: 'block', backgroundColor: 'rgba(0,0,0,0.5)' }}
+                    aria-modal="true"
+                    role="dialog"
+                >
+                    <div className="modal-dialog modal-dialog-centered">
+                        <div className="modal-content">
+                            {/* Modal Header */}
+                            <div className="modal-header">
+                                <h5 className="modal-title">Confirm Account Deletion</h5>
+                                <button type="button" className="btn-close" onClick={handleCloseModal}></button>
+                            </div>
 
-                <button className="w-100 btn btn-lg btn-danger" type="submit" disabled={isSubmitting}>
-                    {isSubmitting ? "Deleting..." : "Delete data and close my account"}
-                </button>
-            </form>
+                            {/* Modal Body */}
+                            <div className="modal-body">
+                                {errorMessage && <div className="text-danger mt-3">{errorMessage}</div>}
+                                {successMessage && <div className="text-success mt-3">{successMessage}</div>}
+                                <form onSubmit={handleSubmit}>
+                                    <div className="mb-3">
+                                        <label htmlFor="password" className="form-label">Enter Your Password</label>
+                                        <input
+                                            type="password"
+                                            className={`form-control ${errorMessage ? 'is-invalid' : ''}`}
+                                            id="password"
+                                            placeholder="Password"
+                                            value={password}
+                                            onChange={handlePasswordChange}
+                                            required
+                                            disabled={isSubmitting}
+                                        />
+                                    </div>
+                                    <div className="mt-3 d-flex justify-content-end">
+                                        <button type="button" className="btn btn-secondary" onClick={handleCloseModal}
+                                                disabled={isSubmitting}>
+                                            Cancel
+                                        </button>
+                                        <button type="submit" className="btn btn-danger ms-2" disabled={isSubmitting}>
+                                            {isSubmitting ? "Deleting..." : "Delete Account"}
+                                        </button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            )}
         </div>
     );
 };

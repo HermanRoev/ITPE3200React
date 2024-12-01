@@ -6,6 +6,7 @@ interface UserProfile {
     username: string;
     profilePictureUrl: string | null;
     email: string;
+    phoneNumber: string;
 }
 
 interface AuthContextType {
@@ -74,6 +75,9 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
             } catch (error) {
                 console.error("Error fetching user profile:", error);
                 setUserProfile(null);
+            }
+            finally {
+                setAuthload(false);
             }
         };
 

@@ -1,14 +1,13 @@
-import React, {useContext} from "react";
-import {NavLink, Route, Routes, useNavigate} from "react-router-dom";
+import React from "react";
+import {NavLink, Route, Routes, useNavigate, Navigate} from "react-router-dom";
 import ProfileComponent from "../components/ProfileComponent";
 import EmailComponent from "../components/EmailComponent";
 import PasswordComponent from "../components/PasswordComponent";
 import PersonalDataComponent from "../components/PersonalDataComponent";
-import {AuthContext, useAuth} from "../context/AuthContext";
+import { useAuth } from "../context/AuthContext";
 
 const SettingsPage = () => {
-    const { token } = useAuth();
-    const { logout } = useContext(AuthContext);
+    const { token, logout } = useAuth();
     const navigate = useNavigate();
 
     // Function to handle logout
@@ -91,6 +90,9 @@ const SettingsPage = () => {
                     <Route path="email" element={<EmailComponent/>}/>
                     <Route path="change-password" element={<PasswordComponent/>}/>
                     <Route path="personal-data" element={<PersonalDataComponent/>}/>
+
+                    {/* Redirect for unmatched routes within /settings */}
+                    <Route path="*" element={<Navigate to="/settings/profile" replace />} />
                 </Routes>
             </div>
         </div>

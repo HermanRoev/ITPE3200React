@@ -7,18 +7,16 @@ const EmailComponent = () => {
     const [message, setMessage] = useState('');
     const [error, setError] = useState('');
 
-    //TODO: kommentar
-    //TODO: fikse slik at fetch fungerer riktig
     const handleChangeEmail = async (e: React.FormEvent) => {
         e.preventDefault();
         try {
-            const response = await fetch("http://localhost:5094/Auth/ChangeEmail", {
+            const response = await fetch(`http://localhost:5094/Auth/change-email`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
-                    Authorization: `Bearer ${token}`, // Include the auth token
+                    'Authorization': `Bearer ${token}`, // Include the auth token
                 },
-                body: JSON.stringify({ newEmail }),
+                body: JSON.stringify(newEmail),
             });
 
             if (!response.ok) {
@@ -27,8 +25,12 @@ const EmailComponent = () => {
                 return;
             }
 
+            // Update the user profile with the new email locally
+            userProfile!.email = newEmail;
+
             setMessage('Email changed successfully.');
             setNewEmail('');
+            setError('');
         } catch (error) {
             setError('An unexpected error occurred. Please try again.');
         }

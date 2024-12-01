@@ -23,7 +23,9 @@ const SavedPostsPage: React.FC = () => {
 
                 if (!response.ok) {
                     const errorData = await response.json();
-                    console.error('Error fetching posts:', errorData.message);
+                    setError(errorData.message || 'An unexpected error occurred');
+                    setLoading(false);
+                    return;
                 }
 
                 const data: PostDto[] = await response.json();
