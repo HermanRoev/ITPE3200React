@@ -7,6 +7,7 @@ import PersonalDataComponent from "../components/PersonalDataComponent";
 import {AuthContext, useAuth} from "../context/AuthContext";
 
 const SettingsPage = () => {
+    const { token } = useAuth();
     const { logout } = useContext(AuthContext);
     const navigate = useNavigate();
 
@@ -15,7 +16,8 @@ const SettingsPage = () => {
             const response = await fetch("http://localhost:5094/Auth/logout", {
                 method: "POST",
                 headers: {
-                    "Content-Type": "application/json",
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json',
                 },
             });
 

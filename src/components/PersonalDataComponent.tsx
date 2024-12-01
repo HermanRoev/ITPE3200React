@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from "react";
+import {AuthContext, useAuth} from "../context/AuthContext";
 
 const PersonalDataComponent = () => {
     //TODO: legge til kommentarer
-
+    const { token } = useAuth();
     const [password, setPassword] = useState("");
     const [requirePassword, setRequirePassword] = useState(false); // Simulate server-determined requirement
     const [errorMessage, setErrorMessage] = useState<string | null>(null);
@@ -13,8 +14,10 @@ const PersonalDataComponent = () => {
         const fetchSettings = async () => {
             try {
                 const response = await fetch("http://localhost:5094/User/Settings", {
+                    method: "GET",
                     headers: {
-                        Authorization: `Bearer ${localStorage.getItem("token")}`,
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json',
                     },
                 });
 

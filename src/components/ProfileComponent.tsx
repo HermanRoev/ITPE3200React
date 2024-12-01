@@ -1,7 +1,9 @@
 import React, {useEffect} from "react";
+import {useAuth} from "../context/AuthContext";
 
 const ProfileComponent = () => {
     // State to store form data
+    const { token } = useAuth();
     const [username, setUsername] = React.useState("");
     const [phoneNumber, setPhoneNumber] = React.useState("");
     const [errorMessage, setErrorMessage] = React.useState<string | null>(null);
@@ -12,8 +14,10 @@ const ProfileComponent = () => {
         const fetchProfileData = async () => {
             try {
                 const response = await fetch("http://localhost:5094/User/GetProfile", {
+                    method: "GET",
                     headers: {
-                        Authorization: `Bearer ${localStorage.getItem("token")}`,
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json',
                     },
                 });
 
