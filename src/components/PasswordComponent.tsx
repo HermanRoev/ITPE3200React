@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useAuth } from '../context/AuthContext';
 
 const PasswordComponent: React.FC = () => {
+    // State to store form data
     const [formData, setFormData] = useState({
         oldPassword: '',
         newPassword: '',
@@ -11,6 +12,7 @@ const PasswordComponent: React.FC = () => {
     const [errorMessage, setErrorMessage] = useState<string | null>(null);
     const [successMessage, setSuccessMessage] = useState<string | null>(null);
 
+    // Handle form input changes
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         setFormData({
             ...formData,
@@ -18,6 +20,7 @@ const PasswordComponent: React.FC = () => {
         });
     };
 
+    //Handle user sumbit new password
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
 
