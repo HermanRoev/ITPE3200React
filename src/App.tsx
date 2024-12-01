@@ -8,9 +8,10 @@ import LoginPage from './pages/LoginPage';
 import RegisterPage from './pages/RegisterPage';
 import CreatePost from './pages/CreatePost';
 import SettingsPage from './pages/SettingsPage';
-import ManageProfilePage from './components/ManageProfileNav';
 import ChangeEmailPage from './pages/ChangeEmailPage';
 import EditPostPage from './pages/EditPostPage';
+import ProfilePage from "./pages/ProfilePage";
+import SavedPostsPage from "./pages/SavedPostsPage";
 
 const App: React.FC = () => {
     const location = useLocation(); // Hook for checking the current route
@@ -34,6 +35,9 @@ const App: React.FC = () => {
                         <Route path="/welcome" element={<LoginMain />} />
                         <Route path="/login" element={<LoginPage />} />
                         <Route path="/register" element={<RegisterPage />} />
+                        <Route path="/profile" element={<ProfilePage />} /> {/* Own profile */}
+                        <Route path="/profile/:username" element={<ProfilePage />} /> {/* Other profiles */}
+                        <Route path="/savedposts" element={<SavedPostsPage />} />
                         <Route path="/createpost" element={<CreatePost />} />
                         <Route path="/settings" element={<SettingsPage />} />
                         <Route path="/change-email" element={<ChangeEmailPage />}></Route>

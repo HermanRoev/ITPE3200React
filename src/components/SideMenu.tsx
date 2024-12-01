@@ -3,18 +3,17 @@ import './SideMenu.css';
 import React from "react";
 import { NavLink } from "react-router-dom";
 
-
 const SideMenu: React.FC = () => {
-    const { isAuthenticated, userProfile } = useAuth();
+    const { isAuthenticated, userProfile } = useAuth(); // Bruker userProfile fra AuthContext
 
     return (
         <div className="side-menu position-fixed">
             {/* Profile Section */}
             <div className="profile-section">
-                {userProfile ? (
+                {userProfile && userProfile.profilePictureUrl ? (
                     <div className="profile-pic-container">
                         <img
-                            src={userProfile.profilePictureUrl}
+                            src={`http://localhost:5094${userProfile.profilePictureUrl}`}
                             alt="Profile"
                             className="profile-pic"
                         />
@@ -55,7 +54,7 @@ const SideMenu: React.FC = () => {
                         </li>
                         <li className="nav-item">
                             <NavLink
-                                to="/saved"
+                                to="/savedposts"
                                 className={({isActive}) =>
                                     isActive ? "nav-link active" : "nav-link"
                                 }

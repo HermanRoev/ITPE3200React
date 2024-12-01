@@ -1,12 +1,11 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { useAuth } from '../context/AuthContext';
 import './Navbar.css';
 import icon from '../assets/images/icon.png';
+import { useAuth} from "../context/AuthContext";
 
 const Navbar: React.FC = () => {
-    const isLoggedIn = !!localStorage.getItem('token'); // Placeholder; replace with actual login check logic.
-    const { logout } = useAuth();
+const { isAuthenticated } = useAuth();
 
     return (
         <header className="sticky-top p-0">
@@ -48,7 +47,7 @@ const Navbar: React.FC = () => {
                     <div className="collapse navbar-collapse" id="navbarNav">
                         <ul className="navbar-nav ms-auto">
                             {/* Large Screen Navbar Links */}
-                            {isLoggedIn ? (
+                            {isAuthenticated ? (
                                 <>
                                     <li className="nav-item d-none d-lg-block">
                                         <Link to="/settings" className="nav-link text-white">
@@ -76,7 +75,7 @@ const Navbar: React.FC = () => {
                         </ul>
 
                         {/* Dropdown Menu for Small/Medium Screens */}
-                        {isLoggedIn && (
+                        {isAuthenticated && (
                             <ul className="navbar-nav d-lg-none">
                                 <li className="nav-item">
                                     <Link to="/" className="nav-link text-white">
@@ -89,7 +88,7 @@ const Navbar: React.FC = () => {
                                     </Link>
                                 </li>
                                 <li className="nav-item">
-                                    <Link to="/saved" className="nav-link text-white">
+                                    <Link to="/savedposts" className="nav-link text-white">
                                         Saved
                                     </Link>
                                 </li>
