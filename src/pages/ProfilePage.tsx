@@ -1,115 +1,158 @@
-import React, { useState, useEffect } from "react";
-import { useAuth } from "../context/AuthContext";
-import { followUser, unfollowUser } from "../services/profileService";
-import EditProfileModal from "./EditProfileModal";
-import CreatePostModal from "./CreatePostModal";
+import React, { useState, useEffect } from 'react';
+import { useParams, Link } from 'react-router-dom';
+import { PostDto, ProfileDto } from '../models';
+import { useAuth } from '../context/AuthContext';
 
-interface Post {
-    id: string;
-    imageUrl: string;
+import PostComponent from '../components/PostComponent';
+
+interface ProfileData {
+    profile: ProfileDto;
+    posts: PostDto[];
 }
 
-const ProfilePage: React.FC = () => {
-    const { userProfile, token, setUserProfile } = useAuth(); // Hent data fra AuthContext, inkludert token
-    const [user, setUser] = useState(userProfile || null);
-    const [posts, setPosts] = useState<Post[]>(userProfile?.posts || []);
-    const [gridLayout, setGridLayout] = useState("3x3");
-    const [showEditModal, setShowEditModal] = useState(false);
-    const [showCreatePostModal, setShowCreatePostModal] = useState(false);
+const ProfilePage = () => {
+    const { username } = useParams<{username? : string }>(); // Get the username from the URL parameters
+
+    // State variables
+    const [userData, setUserData] = useState<ProfileDto | null>(null);
+    const [posts, setPosts] = useState<PostDto[] | null>(null);
+    const [isCurrentUserProfile, setIsCurrentUserProfile] = useState(false);
     const [isFollowing, setIsFollowing] = useState(false);
+    const [gridView, setGridView] = useState('3x3'); // Possible values: '3x3' or '2x2'
+    const { token, isAuthenticated, authload } = useAuth();
 
+    // Fetch user data when component mounts
     useEffect(() => {
-        if (userProfile) {
-            setUser(userProfile);
-            setPosts(userProfile.posts);
-        }
-    }, [userProfile]);
+        const fetchProfileData = async () => {
+            try {
+                let response;
+                // Fetch profile data
+                if (!username) {
+                    response = await fetch('http://localhost:5094/Profile/', {
+                        method: 'GET',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Authorization': `Bearer ${token}`,
+                        },
+                    });
+                }
+                else {
+                    response = await fetch(`http://localhost:5094/Profile/${username}`, {
+                        method: 'GET',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Authorization': `Bearer ${token}`,
+                        },
+                    });
+                }
 
-    const handleFollowToggle = async () => {
-        if (!user || !token) {
-            alert("You need to log in to follow/unfollow users.");
-            return;
-        }
+                if (!response.ok) {
+                    throw new Error(`Bad response from server: ${response.status} ${response.statusText}`);
+                }
 
-        try {
-            if (isFollowing) {
-                await unfollowUser(user.username, token); // Bruk token fra AuthContext
-                setUser((prevUser) =>
-                    prevUser ? { ...prevUser, followers: prevUser.followers - 1 } : null
-                );
-                setIsFollowing(false);
-            } else {
-                await followUser(user.username, token); // Bruk token fra AuthContext
-                setUser((prevUser) =>
-                    prevUser ? { ...prevUser, followers: prevUser.followers + 1 } : null
-                );
-                setIsFollowing(true);
+                const profileData : ProfileData = await response.json();
+                console.log(profileData);
+
+                setUserData(profileData.profile);
+                setPosts(profileData.posts);
+
+                setIsCurrentUserProfile(profileData.profile.isCurrentUserProfile);
+                setIsFollowing(profileData.profile.isFollowing);
+
+            } catch (error) {
+                console.error('Error fetching profile data', error);
+                // Redirect to error page or handle error
             }
-        } catch (error) {
-            console.error("Failed to toggle follow status:", error);
-            alert("An error occurred while trying to update follow status.");
-        }
-    };
-
-    const handleSaveProfileChanges = (data: { bio: string; profilePicture: File | null }) => {
-        if (!user) return;
-
-        // Update the profile in the local state
-        const updatedUser = {
-            ...user,
-            bio: data.bio,
-            profilePictureUrl: data.profilePicture
-                ? URL.createObjectURL(data.profilePicture) // If there's a new picture, use it
-                : user.profilePictureUrl,
         };
 
-        setUser(updatedUser);
-
-        // Also update userProfile in AuthContext
-        if (userProfile) {
-            userProfile.bio = data.bio;
-            userProfile.profilePictureUrl = updatedUser.profilePictureUrl; // Update profile picture URL
-            setUserProfile({ ...userProfile });
+        if (!authload) {
+            fetchProfileData();
         }
+    }, [authload, token, username]);
 
-        // Call onSaveChanges (provided by parent)
-        // This function will update the API and ensure changes are saved server-side as well
+    const handleFollow = async () => {
+        try {
+            const response = await fetch(`http://localhost:5094/Profile/follow`, {
+                method: 'POST',
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ Username: userData?.username }),
+            });
+
+            if (!response.ok) {
+                throw new Error('Result not ok');
+            }
+
+            setIsFollowing(true);
+            // Update followers count
+            userData!.followersCount++;
+
+        } catch (error) {
+            console.error('Error following user', error);
+        }
     };
 
-    const toggleGridLayout = (layout: string) => {
-        setGridLayout(layout);
+    const handleUnfollow = async () => {
+        try {
+            const response = await fetch(`http://localhost:5094/Profile/unfollow`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ username: userData?.username }),
+            });
+
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
+            }
+
+            setIsFollowing(false);
+            // Update followers count
+            userData!.followersCount--;
+
+        } catch (error) {
+            console.error('Error unfollowing user', error);
+        }
     };
 
-    if (!user) return <p>Loading...</p>;
+    const handleGridViewChange = (view: React.SetStateAction<string>) => {
+        setGridView(view);
+    };
 
+    // Render
     return (
-        <div className="profile-page bg-transparent text-light py-5" style={{ backgroundColor: "#222", color: "#fff" }}>
+        <div className="profile-page bg-transparent text-light py-5" style={{ backgroundColor: '#222', color: '#fff' }}>
             <div className="container">
                 {/* Profile Section */}
                 <div className="row align-items-center justify-content-center mb-5">
                     {/* Profile Image */}
                     <div className="col-md-4 col-lg-3 text-center text-md-start mb-4 mb-md-0 d-flex justify-content-center">
-                        {user.profilePictureUrl ? (
+                        {userData && userData.profilePictureUrl ? (
                             <img
-                                src={user.profilePictureUrl}
-                                alt="Profile Picture"
+                                src={`http://localhost:5094${userData.profilePictureUrl}`}
+                                alt="Profile"
                                 className="profile-picture"
                                 style={{
-                                    width: "200px",
-                                    height: "200px",
-                                    objectFit: "cover",
-                                    borderRadius: "1.2em",
-                                    marginRight: "2em",
+                                    width: '200px',
+                                    height: '200px',
+                                    objectFit: 'cover',
+                                    borderRadius: '1.2em',
+                                    border: 'none',
+                                    aspectRatio: '1/1',
+                                    marginRight: '2em',
                                 }}
                             />
                         ) : (
                             <div
                                 className="bg-secondary d-flex justify-content-center align-items-center"
                                 style={{
-                                    width: "200px",
-                                    height: "200px",
-                                    borderRadius: "1.2em",
-                                    marginRight: "2em",
+                                    width: '200px',
+                                    height: '200px',
+                                    borderRadius: '1.2em',
+                                    aspectRatio: '1/1',
+                                    marginRight: '2em',
                                 }}
                             >
                                 <i className="bi bi-person fs-1 text-white"></i>
@@ -120,121 +163,173 @@ const ProfilePage: React.FC = () => {
                     {/* Profile Info */}
                     <div className="col-md-8 col-lg-6 text-center text-md-start">
                         <h1
-                            className="display-6 fw-bold"
+                            className="display-6 fw-bold username-text"
                             style={{
-                                fontSize: "clamp(1.2em, 3.5vw, 2.5em)",
-                                whiteSpace: "nowrap",
-                                overflow: "hidden",
-                                textOverflow: "ellipsis",
+                                fontSize: 'clamp(1.2em, 3.5vw, 2.5em)',
+                                whiteSpace: 'nowrap',
+                                overflow: 'hidden',
+                                textOverflow: 'ellipsis',
                             }}
                         >
-                            {user.username}
+                            {userData ? userData.username : 'Loading...'}
                         </h1>
-                        <p className="lead" style={{ fontSize: "1.3em", color: "#aaa" }}>
-                            {user.bio}
+                        <p className="lead" style={{ fontSize: '1.3em', color: '#aaa' }}>
+                            {userData ? userData.bio : ''}
                         </p>
 
                         <div className="d-flex justify-content-center justify-content-md-between mb-3 post-info-container">
-                            <span className="post-info" style={{ fontSize: "clamp(1em, 2vw, 1.4em)", color: "#bbb", margin: "0 1em" }}>
-                                {posts.length} Posts
-                            </span>
-                            <span className="post-info" style={{ fontSize: "clamp(1em, 2vw, 1.4em)", color: "#bbb", margin: "0 1em" }}>
-                                {user.followers} Followers
-                            </span>
-                            <span className="post-info" style={{ fontSize: "clamp(1em, 2vw, 1.4em)", color: "#bbb", margin: "0 1em" }}>
-                                {user.following} Following
-                            </span>
+                          <span
+                              className="post-info"
+                              style={{ fontSize: 'clamp(1em, 2vw, 1.4em)', color: '#bbb', margin: '0 1em' }}
+                          >
+                            {posts ? posts.length : 0} Posts
+                          </span>
+                            <span
+                                className="post-info"
+                                style={{ fontSize: 'clamp(1em, 2vw, 1.4em)', color: '#bbb', margin: '0 1em' }}
+                            >
+                            {userData ? userData.followersCount : 0} Followers
+                          </span>
+                            <span
+                                className="post-info"
+                                style={{ fontSize: 'clamp(1em, 2vw, 1.4em)', color: '#bbb', margin: '0 1em' }}
+                            >
+                            {userData ? userData.followingCount : 0} Following
+                          </span>
                         </div>
 
+                        {/* Buttons Section */}
                         <div className="d-flex justify-content-center justify-content-md-start">
-                            {userProfile?.username === user.username ? (
-                                <>
+                            {isAuthenticated ? (
+                                isCurrentUserProfile ? (
+                                    // Edit Profile and Create Post Buttons for the current user
+                                    <>
+                                        <Link
+                                            className="btn loginbtn-primary btn-lg me-3 w-50"
+                                            to="/profile/edit"
+                                            style={{ width: '50%' }}
+                                        >
+                                            Edit Profile
+                                        </Link>
+                                    </>
+                                ) : (
+                                    // Follow/Unfollow Button for other users
                                     <button
-                                        className="btn loginbtn-primary btn-lg me-3 w-50"
-                                        onClick={() => setShowEditModal(true)}
-                                        style={{ width: "50%" }}
+                                        onClick={isFollowing ? handleUnfollow : handleFollow}
+                                        className={`btn ${
+                                            isFollowing ? 'loginbtn-secondary' : 'loginbtn-primary'
+                                        } btn-lg w-100`}
+                                        style={{ width: '100%' }}
                                     >
-                                        Edit Profile
+                                        {isFollowing ? 'Unfollow' : 'Follow'}
                                     </button>
-                                    <button
-                                        className="btn btn-secondary btn-lg  w-50"
-                                        onClick={() => setShowCreatePostModal(true)}
-                                        style={{ width: "50%" }}
-                                    >
-                                        Create Post
-                                    </button>
-                                </>
+                                )
                             ) : (
-                                <button
-                                    className={`btn ${isFollowing ? "btn-secondary" : "btn-primary"}`}
-                                    onClick={handleFollowToggle}
-                                    style={{ width: "100%" }}
+                                // Login Button for non-logged in users
+                                <Link
+                                    className="btn loginbtn-primary btn-lg w-100"
+                                    to="/login"
+                                    style={{ width: '100%' }}
                                 >
-                                    {isFollowing ? "Unfollow" : "Follow"}
-                                </button>
+                                    Login to Follow
+                                </Link>
                             )}
                         </div>
                     </div>
                 </div>
 
-                {/* Grid Layout Buttons */}
+                {/* Icons Section */}
                 <div className="d-flex justify-content-evenly icon-section">
+                    {/* Grid 3x3 Icon */}
                     <div className="me-5">
                         <i
                             id="grid-3x3"
-                            className={`bi bi-grid-3x3-gap grid-icon ${gridLayout === "3x3" ? "active-icon" : ""}`}
-                            onClick={() => toggleGridLayout("3x3")}
+                            className={`bi bi-grid-3x3-gap grid-icon grid-icon-3x3 ${
+                                gridView === '3x3' ? 'active-icon' : ''
+                            }`}
+                            onClick={() => handleGridViewChange('3x3')}
                         ></i>
                     </div>
+
+                    {/* Grid Icon */}
                     <div className="ms-5">
                         <i
                             id="grid-2x2"
-                            className={`bi bi-grid grid-icon ${gridLayout === "2x2" ? "active-icon" : ""}`}
-                            onClick={() => toggleGridLayout("2x2")}
+                            className={`bi bi-grid grid-icon grid-icon-fill ${
+                                gridView === '2x2' ? 'active-icon' : ''
+                            }`}
+                            onClick={() => handleGridViewChange('2x2')}
                         ></i>
-                    </div>
-                </div>
-
-                {/* User Posts Section */}
-                <div id="post-grid" className="profile-posts mt-3 container-fluid px-0 px-md-3">
-                    <div id="grid-layout" className={`row row-cols-1 row-cols-sm-2 row-cols-md-3 g-3 justify-content-center ${gridLayout === "2x2" ? "row-cols-md-2" : ""}`}>
-                        {posts.map((post) => (
-                            <div key={post.id} className="col">
-                                <div className="card h-100 border-0">
-                                    <img
-                                        src={post.imageUrl}
-                                        alt={`Post ${post.id}`}
-                                        className="card-img-top"
-                                        style={{ objectFit: "cover", height: "200px" }}
-                                    />
-                                </div>
-                            </div>
-                        ))}
                     </div>
                 </div>
             </div>
 
-            <EditProfileModal
-                show={showEditModal}
-                handleClose={() => setShowEditModal(false)}
-                user={user}
-                onSaveChanges={handleSaveProfileChanges}
-            />
-            <CreatePostModal
-                show={showCreatePostModal}
-                handleClose={() => setShowCreatePostModal(false)}
-                onCreatePost={() => {}}
-            />
+            {/* User Posts Section */}
+            <div id="post-grid" className="profile-posts mt-3 container-fluid px-0 px-md-3">
+                {posts && posts.length > 0 ? (
+                    <div
+                        id="grid-layout"
+                        className={`row ${
+                            gridView === '3x3'
+                                ? 'row-cols-1 row-cols-sm-2 row-cols-md-3'
+                                : 'row-cols-1 row-cols-sm-2'
+                        } g-3 justify-content-center`}
+                    >
+                        {posts.map((post) => (
+                            <div className="col" key={post.postId}>
+                                <div className="card h-100 border-0">
+                                    {/* Link image to modal */}
+                                    <button
+                                        type="button"
+                                        className="btn btn-link p-0"
+                                        data-bs-toggle="modal"
+                                        data-bs-target={`#postModal-${post.postId}`}
+                                        style={{border: 'none', background: 'none'}}
+                                    >
+                                        <img
+                                            src={
+                                                post.imageUrls && post.imageUrls.length > 0
+                                                    ? `http://localhost:5094${post.imageUrls[0]}` // Use the first image as the post thumbnail
+                                                    : ''
+                                            }
+                                            alt="Post"
+                                            className="card-img-top"
+                                            style={{
+                                                width: '100%',
+                                                aspectRatio: '3/4',
+                                                objectFit: 'cover',
+                                                backgroundColor: 'black',
+                                            }}
+                                        />
+                                    </button>
+                                </div>
+
+                                {/* Modal for the post */}
+                                <div
+                                    className="modal fade p-3"
+                                    id={`postModal-${post.postId}`}
+                                    tabIndex={-1}
+                                    aria-labelledby={`postModalLabel-${post.postId}`}
+                                    aria-hidden="true"
+                                >
+                                    <div className="modal-dialog modal-dialog-centered">
+                                        <div className="modal-content pt-0 pb-0 pe-4 ps-4">
+                                            <div id={`post-${post.postId}`}>
+                                                {/* Render the post content */}
+                                                <PostComponent post={post} />
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+                ) : (
+                    <p>No posts to show</p>
+                )}
+            </div>
         </div>
     );
 };
 
 export default ProfilePage;
-
-
-
-
-
-
-
-

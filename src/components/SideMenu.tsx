@@ -10,7 +10,7 @@ const SideMenu: React.FC = () => {
         <div className="side-menu position-fixed">
             {/* Profile Section */}
             <div className="profile-section">
-                {userProfile ? (
+                {userProfile && userProfile.profilePictureUrl ? (
                     <div className="profile-pic-container">
                         <img
                             src={userProfile.profilePictureUrl}

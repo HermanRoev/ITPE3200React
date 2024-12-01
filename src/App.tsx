@@ -6,12 +6,11 @@ import HomePage from './pages/HomePage';
 import LoginMain from './pages/LoginMain';
 import LoginPage from './pages/LoginPage';
 import RegisterPage from './pages/RegisterPage';
-import ProfilePage from "./pages/ProfilePage";
-
 import CreatePost from './pages/CreatePost';
 import SettingsPage from './pages/SettingsPage';
 import ChangeEmailPage from './pages/ChangeEmailPage';
 import EditPostPage from './pages/EditPostPage';
+import ProfilePage from "./pages/ProfilePage";
 
 const App: React.FC = () => {
     const location = useLocation(); // Hook for checking the current route
