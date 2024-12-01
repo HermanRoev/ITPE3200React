@@ -20,54 +20,50 @@ const ProfilePage = () => {
     const [isFollowing, setIsFollowing] = useState(false);
     const [gridView, setGridView] = useState('3x3'); // Possible values: '3x3' or '2x2'
     const { token, isAuthenticated, authload } = useAuth();
+    // State variables for the modal and form
+    const [showEditModal, setShowEditModal] = useState(false);
+    const [bio, setBio] = useState('');
+    const [errorMessage, setErrorMessage] = useState('');
+    const [successMessage, setSuccessMessage] = useState('');
+    const [newImage, setNewImage] = useState<File | null>(null);
+
+    const fetchProfileData = async () => {
+        try {
+            const url = username ? `http://localhost:5094/Profile/${username}` : 'http://localhost:5094/Profile/';
+            // Fetch profile data
+            const response = await fetch(url, {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`,
+                },
+            });
+
+            if (!response.ok) {
+                throw new Error(`Bad response from server: ${response.status} ${response.statusText}`);
+            }
+
+            const profileData : ProfileData = await response.json();
+            console.log(profileData);
+
+            setUserData(profileData.profile);
+            setPosts(profileData.posts);
+
+            setIsCurrentUserProfile(profileData.profile.isCurrentUserProfile);
+            setIsFollowing(profileData.profile.isFollowing);
+
+        } catch (error) {
+            console.error('Error fetching profile data', error);
+            // Redirect to error page or handle error
+        }
+    };
 
     // Fetch user data when component mounts
     useEffect(() => {
-        const fetchProfileData = async () => {
-            try {
-                let response;
-                // Fetch profile data
-                if (!username) {
-                    response = await fetch('http://localhost:5094/Profile/', {
-                        method: 'GET',
-                        headers: {
-                            'Content-Type': 'application/json',
-                            'Authorization': `Bearer ${token}`,
-                        },
-                    });
-                }
-                else {
-                    response = await fetch(`http://localhost:5094/Profile/${username}`, {
-                        method: 'GET',
-                        headers: {
-                            'Content-Type': 'application/json',
-                            'Authorization': `Bearer ${token}`,
-                        },
-                    });
-                }
-
-                if (!response.ok) {
-                    throw new Error(`Bad response from server: ${response.status} ${response.statusText}`);
-                }
-
-                const profileData : ProfileData = await response.json();
-                console.log(profileData);
-
-                setUserData(profileData.profile);
-                setPosts(profileData.posts);
-
-                setIsCurrentUserProfile(profileData.profile.isCurrentUserProfile);
-                setIsFollowing(profileData.profile.isFollowing);
-
-            } catch (error) {
-                console.error('Error fetching profile data', error);
-                // Redirect to error page or handle error
-            }
-        };
-
         if (!authload) {
-            fetchProfileData();
+            fetchProfileData().then(r => r);
         }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [authload, token, username]);
 
     const handleFollow = async () => {
@@ -78,7 +74,7 @@ const ProfilePage = () => {
                     'Authorization': `Bearer ${token}`,
                     'Content-Type': 'application/json',
                 },
-                body: JSON.stringify({ Username: userData?.username }),
+                body: JSON.stringify(userData?.username),
             });
 
             if (!response.ok) {
@@ -86,7 +82,7 @@ const ProfilePage = () => {
             }
 
             setIsFollowing(true);
-            // Update followers count
+            // Update followers count locally, assuming the response is successful
             userData!.followersCount++;
 
         } catch (error) {
@@ -99,9 +95,10 @@ const ProfilePage = () => {
             const response = await fetch(`http://localhost:5094/Profile/unfollow`, {
                 method: 'POST',
                 headers: {
+                    'Authorization': `Bearer ${token}`,
                     'Content-Type': 'application/json',
                 },
-                body: JSON.stringify({ username: userData?.username }),
+                body: JSON.stringify(userData?.username),
             });
 
             if (!response.ok) {
@@ -109,19 +106,70 @@ const ProfilePage = () => {
             }
 
             setIsFollowing(false);
-            // Update followers count
+            // Update followers count locally, assuming the response is successful
             userData!.followersCount--;
 
         } catch (error) {
+
             console.error('Error unfollowing user', error);
         }
     };
+
+    const handleSaveChanges = async (e: React.FormEvent) => {
+        e.preventDefault(); // Prevent the default form submission behavior
+
+        const formData = new FormData();
+        formData.append('Bio', bio);
+        if (newImage) {
+            formData.append('ProfilePicture', newImage);
+        }
+
+        try {
+            const response = await fetch('http://localhost:5094/Profile/edit', {
+                method: 'POST',
+                headers: {
+                    // 'Content-Type' should **NOT** be set manually when using FormData
+                    'Authorization': `Bearer ${token}`, // Include the authorization token
+                },
+                body: formData, // The FormData object containing bio and image
+            });
+            if (!response.ok) {
+                const errorData = await response.json();
+                setErrorMessage(errorData.message || 'Failed to update the profile');
+                }
+            setSuccessMessage('Profile updated successfully');
+
+            await fetchProfileData(); // Fetch the updated profile data
+
+            setTimeout(() => {
+                setShowEditModal(false);
+                setSuccessMessage('');
+            }, 1500);
+
+        }
+        catch (error) {
+            setErrorMessage('An error occurred while updating the profile');
+        }
+    }
 
     const handleGridViewChange = (view: React.SetStateAction<string>) => {
         setGridView(view);
     };
 
-    // Render
+    const handleOpenEditModal = () => {
+        setBio(userData?.bio || '');
+        setNewImage(null);
+        setErrorMessage('');
+        setShowEditModal(true);
+    };
+
+    const handleAddImage = (event: React.ChangeEvent<HTMLInputElement>) => {
+        if (event.target.files && event.target.files.length > 0) {
+            let file = event.target.files[0];
+            setNewImage(file);
+        }
+    }
+
     return (
         <div className="profile-page bg-transparent text-light py-5" style={{ backgroundColor: '#222', color: '#fff' }}>
             <div className="container">
@@ -204,13 +252,13 @@ const ProfilePage = () => {
                                 isCurrentUserProfile ? (
                                     // Edit Profile and Create Post Buttons for the current user
                                     <>
-                                        <Link
+                                        <button
                                             className="btn loginbtn-primary btn-lg me-3 w-50"
-                                            to="/profile/edit"
-                                            style={{ width: '50%' }}
+                                            onClick={handleOpenEditModal}
+                                            style={{width: '50%'}}
                                         >
                                             Edit Profile
-                                        </Link>
+                                        </button>
                                     </>
                                 ) : (
                                     // Follow/Unfollow Button for other users
@@ -328,6 +376,94 @@ const ProfilePage = () => {
                     <p>No posts to show</p>
                 )}
             </div>
+            {showEditModal && (
+                <div
+                    className="modal fade show"
+                    tabIndex={-1}
+                    style={{ display: 'block', backgroundColor: 'rgba(0,0,0,0.5)' }}
+                    aria-modal="true"
+                    role="dialog"
+                >
+                    <div className="modal-dialog modal-dialog-centered">
+                        <div className="modal-content">
+                            {/* Modal Header */}
+                            <div className="modal-header">
+                                <h5 className="modal-title">Edit Profile</h5>
+                                <button type="button" className="btn-close" onClick={() => setShowEditModal(false)}></button>
+                            </div>
+
+                            {/* Modal Body */}
+                            <div className="modal-body">
+                                <div className="edit-post-container">
+                                    <form className="edit-post-form" onSubmit={handleSaveChanges}>
+                                        {/* Heading */}
+                                        <h2 className="edit-post-heading">Edit Profile</h2>
+
+                                        {/* Bio Textarea */}
+                                        <textarea
+                                            placeholder="Edit your bio..."
+                                            value={bio}
+                                            onChange={(e) => setBio(e.target.value)}
+                                            required
+                                        ></textarea>
+
+                                        {/* Image Container */}
+                                        <div className="image-container mb-3">
+                                            {/* New Image */}
+                                            {newImage && (
+                                                <div className="image-row">
+                                                    <img
+                                                        src={URL.createObjectURL(newImage)}
+                                                        alt="New Profile"
+                                                        className="image-thumbnail"
+                                                    />
+                                                    <p className="file-name">New Profile Picture</p>
+                                                    <button
+                                                        type="button"
+                                                        className="btn btn-danger delete-button"
+                                                        onClick={() => setNewImage(null)}
+                                                    >
+                                                        Delete
+                                                    </button>
+                                                </div>
+                                            )}
+                                        </div>
+
+                                        {/* File Input Container */}
+                                        <div className="file-input-container">
+                                            {/* Add Image Button */}
+                                            {!newImage && (
+                                                <label
+                                                    htmlFor="add-image"
+                                                    className="btn loginbtn-secondary file-input-button"
+                                                >
+                                                    Add Image
+                                                </label>
+                                            )}
+                                            <input
+                                                id="add-image"
+                                                type="file"
+                                                accept="image/*"
+                                                style={{ display: 'none' }}
+                                                onChange={handleAddImage}
+                                                multiple={false}
+                                            />
+
+                                            {/* Save Changes Button */}
+                                            <button type="submit" className="btn loginbtn-primary file-input-button">
+                                                Save Changes
+                                            </button>
+                                        </div>
+
+                                        {errorMessage && <div className="alert alert-danger">{errorMessage}</div>}
+                                        {successMessage && <div className="alert alert-success">{successMessage}</div>}
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            )}
         </div>
     );
 };
