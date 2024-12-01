@@ -68,39 +68,37 @@ const ProfileComponent = () => {
     };
 
     return (
-        <div className="row">
+        <div className="change-profile">
             <h2>Settings</h2>
-            <div className="col-md-8">
-                <form id="profile-form" onSubmit={handleSubmit}>
-                    <div className="text-danger" role="alert">
-                        {errorMessage}
-                    </div>
-                    <div className="form-floating mb-3">
-                        <input
-                            type="text"
-                            className="form-control"
-                            placeholder="Username"
-                            value={username}
-                            disabled
-                        />
-                        <label className="form-label">Username</label>
-                    </div>
-                    <div className="form-floating mb-3">
-                        <input
-                            type="text"
-                            className="form-control"
-                            placeholder="Please enter your phone number."
-                            value={phoneNumber}
-                            onChange={handlePhoneNumberChange}
-                        />
-                        <label className="form-label">Phone Number</label>
-                        <span className="text-danger">{errorMessage}</span>
-                    </div>
-                    <button id="update-profile-button" type="submit" className="btn loginbtn-primary btn-lg w-100">
-                        Save
-                    </button>
-                </form>
-            </div>
+            <form id="profile-form" onSubmit={handleSubmit}>
+                <div className="text-danger" role="alert">
+                    {errorMessage}
+                </div>
+                <div className="form-floating mb-3">
+                    <input
+                        type="text"
+                        className="form-control"
+                        placeholder="Username"
+                        value={username}
+                        disabled
+                    />
+                    <label className="form-label">Username</label>
+                </div>
+                <div className="form-floating mb-3">
+                    <input
+                        type="text"
+                        className="form-control"
+                        placeholder="Please enter your phone number."
+                        value={phoneNumber}
+                        onChange={handlePhoneNumberChange}
+                    />
+                    <label className="form-label">Phone Number</label>
+                    <span className="text-danger">{errorMessage}</span>
+                </div>
+                <button id="update-profile-button" type="submit" className="btn loginbtn-primary btn-lg w-100">
+                    Save
+                </button>
+            </form>
         </div>
     )
 
