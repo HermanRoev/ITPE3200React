@@ -4,7 +4,7 @@ import React, { createContext, useState, useEffect, ReactNode } from 'react';
 
 interface UserProfile {
     username: string;
-    profilePictureUrl: string | null;
+    profilePictureUrl: string;
     email: string;
     phoneNumber: string;
 }
