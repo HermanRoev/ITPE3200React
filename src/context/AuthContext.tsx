@@ -34,6 +34,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     const [token, setToken] = useState<string | null>(null);
     const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
     const [authload, setAuthload] = useState(true);
+    const [isAuthenticated, setIsAuthenticated] = useState(false);
 
     // Load token from localStorage on mount
     useEffect(() => {
@@ -44,11 +45,12 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         setAuthload(false);
     }, []);
 
-    // Fetch user profile whenever token changes
+    // Fetch user profile whenever token changes or on mount
     useEffect(() => {
         const fetchProfile = async () => {
             if (!token) {
                 setUserProfile(null);
+                setIsAuthenticated(false);
                 return;
             }
 
@@ -64,6 +66,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
                 if (response.ok) {
                     const data: UserProfile = await response.json();
                     setUserProfile(data);
+                    setIsAuthenticated(true);
                 } else {
                     console.error("Failed to fetch profile data");
                     setUserProfile(null);
@@ -87,8 +90,6 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         setToken(null);
         setUserProfile(null);
     };
-
-    const isAuthenticated = !!token;
 
     return (
         <AuthContext.Provider value={{ isAuthenticated, token, userProfile, login, logout, authload }}>
