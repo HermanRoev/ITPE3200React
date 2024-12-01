@@ -12,6 +12,10 @@ const EditPostPage: React.FC = () => {
     const [newImages, setNewImages] = useState<{ file: File; preview: string }[]>([]); // New image files with previews
     const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
+    // New state variables to store initial content and images
+    const [initialContent, setInitialContent] = useState("");
+    const [initialImages, setInitialImages] = useState<string[]>([]);
+
     const MAX_FILES = 5;
     const BASE_URL = "http://localhost:5094";
 
@@ -28,12 +32,14 @@ const EditPostPage: React.FC = () => {
                 if (response.ok) {
                     const postData = await response.json();
                     setContent(postData.content);
+                    setInitialContent(postData.content); // Store initial content
 
                     // Convert relative image paths to full URLs
                     const imageUrls = postData.imageUrls.map(
                         (url: string) => `${BASE_URL}${url}`
                     );
                     setCurrentImages(imageUrls);
+                    setInitialImages(imageUrls); // Store initial images
                 } else {
                     console.error("Failed to fetch post data.");
                 }
@@ -44,6 +50,11 @@ const EditPostPage: React.FC = () => {
 
         fetchPostData();
     }, [postId, token]);
+
+    // Helper function to compare arrays
+    const arraysEqual = (a: string[], b: string[]) => {
+        return a.length === b.length && a.every((val, index) => val === b[index]);
+    };
 
     // Delete an existing image
     const handleDeleteImage = (index: number) => {
@@ -81,6 +92,16 @@ const EditPostPage: React.FC = () => {
 
     const handleSaveChanges = async (event: React.FormEvent) => {
         event.preventDefault();
+
+        // Check if no changes were made
+        if (
+            content === initialContent &&
+            arraysEqual(currentImages, initialImages) &&
+            newImages.length === 0
+        ) {
+            navigate("/");
+            return;
+        }
 
         if (currentImages.length + newImages.length === 0) {
             setErrorMessage("At least one image is required.");
@@ -122,6 +143,7 @@ const EditPostPage: React.FC = () => {
         }
     };
 
+
     return (
         <div className="edit-post-container">
             <form className="edit-post-form" onSubmit={handleSaveChanges}>
@@ -137,7 +159,7 @@ const EditPostPage: React.FC = () => {
                 <div className="image-container mb-3">
                     {currentImages.map((image, index) => (
                         <div key={index} className="image-row">
-                            <img src={image} alt={`Image ${index + 1}`} className="image-thumbnail" />
+                            <img src={image} alt={`PostImage ${index + 1}`} className="image-thumbnail" />
                             <p className="file-name">Image {index + 1}</p>
                             <button
                                 type="button"
@@ -152,7 +174,7 @@ const EditPostPage: React.FC = () => {
                         <div key={index} className="image-row">
                             <img
                                 src={imageObj.preview}
-                                alt={`New Image ${index + 1}`}
+                                alt={`New PostImage ${index + 1}`}
                                 className="image-thumbnail"
                             />
                             <p className="file-name">Image {currentImages.length + index + 1}</p> {/* New images */}
