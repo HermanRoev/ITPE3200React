@@ -4,7 +4,6 @@ import {useAuth} from "../context/AuthContext";
 const EmailComponent = () => {
     const { token } = useAuth(); // Get the authentication token
     const [newEmail, setNewEmail] = useState('');
-    const [emailConfirmed, setEmailConfirmed] = useState(true); // Adjust based on actual email confirmation state
     const [message, setMessage] = useState('');
     const [error, setError] = useState('');
 
