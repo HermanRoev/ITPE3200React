@@ -19,7 +19,7 @@ const ProfilePage = () => {
     const [isCurrentUserProfile, setIsCurrentUserProfile] = useState(false);
     const [isFollowing, setIsFollowing] = useState(false);
     const [gridView, setGridView] = useState('3x3'); // Possible values: '3x3' or '2x2'
-    const { token, isAuthenticated, authload } = useAuth();
+    const { token, isAuthenticated, authload, fetchProfile } = useAuth();
     // State variables for the modal and form
     const [showEditModal, setShowEditModal] = useState(false);
     const [bio, setBio] = useState('');
@@ -55,6 +55,8 @@ const ProfilePage = () => {
 
             const profileData: ProfileData = await response.json();
             console.log(profileData);
+
+            fetchProfile(); // Fetch the updated profile data
 
             setUserData(profileData.profile);
             setPosts(profileData.posts);

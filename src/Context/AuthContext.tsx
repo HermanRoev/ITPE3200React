@@ -1,5 +1,3 @@
-// src/context/AuthContext.tsx
-
 import React, { createContext, useState, useEffect, ReactNode } from 'react';
 
 interface UserProfile {
@@ -16,6 +14,7 @@ interface AuthContextType {
     login: (token: string) => void;
     logout: () => void;
     authload: boolean;
+    fetchProfile: () => void;
 }
 
 export const AuthContext = createContext<AuthContextType>({
@@ -25,6 +24,7 @@ export const AuthContext = createContext<AuthContextType>({
     login: () => {},
     logout: () => {},
     authload: true,
+    fetchProfile: () => {},
 });
 
 interface AuthProviderProps {
@@ -48,41 +48,41 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
     // Fetch user profile whenever token changes or on mount
     useEffect(() => {
-        const fetchProfile = async () => {
-            if (!token) {
-                setUserProfile(null);
-                setIsAuthenticated(false);
-                return;
-            }
-
-            try {
-                const response = await fetch("http://localhost:5094/Profile/basic", {
-                    method: "GET",
-                    headers: {
-                        Authorization: `Bearer ${token}`,
-                        "Content-Type": "application/json",
-                    },
-                });
-
-                if (response.ok) {
-                    const data: UserProfile = await response.json();
-                    setUserProfile(data);
-                    setIsAuthenticated(true);
-                } else {
-                    console.error("Failed to fetch profile data");
-                    setUserProfile(null);
-                }
-            } catch (error) {
-                console.error("Error fetching user profile:", error);
-                setUserProfile(null);
-            }
-            finally {
-                setAuthload(false);
-            }
-        };
+        if (!token) {
+            setUserProfile(null);
+            setIsAuthenticated(false);
+            return;
+        }
 
         fetchProfile();
     }, [token]);
+
+    const fetchProfile = async () => {
+        try {
+            const response = await fetch("http://localhost:5094/Profile/basic", {
+                method: "GET",
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                    "Content-Type": "application/json",
+                },
+            });
+
+            if (response.ok) {
+                const data: UserProfile = await response.json();
+                setUserProfile(data);
+                setIsAuthenticated(true);
+            } else {
+                console.error("Failed to fetch profile data");
+                setUserProfile(null);
+            }
+        } catch (error) {
+            console.error("Error fetching user profile:", error);
+            setUserProfile(null);
+        }
+        finally {
+            setAuthload(false);
+        }
+    };
 
     const login = (userToken: string) => {
         localStorage.setItem('token', userToken);
@@ -96,7 +96,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     };
 
     return (
-        <AuthContext.Provider value={{ isAuthenticated, token, userProfile, login, logout, authload }}>
+        <AuthContext.Provider value={{ isAuthenticated, token, userProfile, login, logout, authload, fetchProfile }}>
             {children}
         </AuthContext.Provider>
     );
