@@ -1,6 +1,6 @@
 import React, { useState, ChangeEvent } from "react";
 import "./CreatePost.css";
-import { useAuth } from "../context/AuthContext";
+import { useAuth } from "../../Context/AuthContext";
 import { useNavigate } from "react-router-dom";
 
 const CreatePost: React.FC = () => {

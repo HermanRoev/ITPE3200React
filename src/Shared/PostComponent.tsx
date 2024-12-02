@@ -1,8 +1,8 @@
 // PostComponent.tsx
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { PostDto, CommentDto } from '../models';
-import { useAuth } from '../context/AuthContext';
+import { PostDto, CommentDto } from '../Models';
+import { useAuth } from '../Context/AuthContext';
 
 interface PostComponentProps {
     post: PostDto;

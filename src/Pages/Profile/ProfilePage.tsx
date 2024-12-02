@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import { PostDto, ProfileDto } from '../models';
-import { useAuth } from '../context/AuthContext';
+import { PostDto, ProfileDto } from '../../Models';
+import { useAuth } from '../../Context/AuthContext';
 
-import PostComponent from '../components/PostComponent';
+import PostComponent from '../../Shared/PostComponent';
 
 interface ProfileData {
     profile: ProfileDto;
