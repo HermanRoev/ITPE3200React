@@ -77,7 +77,7 @@ const ProfilePage = () => {
 
     // Fetch user data when component mounts or when dependencies change
     useEffect(() => {
-        if (!authload && isAuthenticated) { // Ensure only fetching when auth is loaded and user is authenticated
+        if (!authload) { // Ensure only fetching when auth is loaded and user is authenticated
             fetchProfileData().then(r => r);
         }
         // eslint-disable-next-line react-hooks/exhaustive-deps
