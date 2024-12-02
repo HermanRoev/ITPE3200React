@@ -4,7 +4,9 @@ import React, { createContext, useState, useEffect, ReactNode } from 'react';
 
 interface UserProfile {
     username: string;
-    profilePictureUrl: string | null;
+    profilePictureUrl: string;
+    email: string;
+    phoneNumber: string;
 }
 
 interface AuthContextType {
@@ -74,6 +76,9 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
                 console.error("Error fetching user profile:", error);
                 setUserProfile(null);
             }
+            finally {
+                setAuthload(false);
+            }
         };
 
         fetchProfile();
@@ -88,8 +93,6 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         localStorage.removeItem('token');
         setToken(null);
         setUserProfile(null);
-        // Redirect to login page
-        window.location.href = "/";
     };
 
     return (

@@ -8,7 +8,6 @@ import LoginPage from './pages/LoginPage';
 import RegisterPage from './pages/RegisterPage';
 import CreatePost from './pages/CreatePost';
 import SettingsPage from './pages/SettingsPage';
-import ChangeEmailPage from './pages/ChangeEmailPage';
 import EditPostPage from './pages/EditPostPage';
 import ProfilePage from "./pages/ProfilePage";
 import SavedPostsPage from "./pages/SavedPostsPage";
@@ -39,8 +38,7 @@ const App: React.FC = () => {
                         <Route path="/profile/:username" element={<ProfilePage />} /> {/* Other profiles */}
                         <Route path="/savedposts" element={<SavedPostsPage />} />
                         <Route path="/createpost" element={<CreatePost />} />
-                        <Route path="/settings" element={<SettingsPage />} />
-                        <Route path="/change-email" element={<ChangeEmailPage />}></Route>
+                        <Route path="/settings/*" element={<SettingsPage />} />
                         <Route path="/post/edit/:postId" element={<EditPostPage />} />
                     </Routes>
                 </div>

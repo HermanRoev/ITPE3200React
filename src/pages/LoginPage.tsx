@@ -103,13 +103,6 @@ const LoginPage: React.FC = () => {
                         <label htmlFor="password">Password</label>
                     </div>
 
-                    {/* Forgot Password Link */}
-                    <div className="form-check mb-4 text-end">
-                        <Link to="/forgot-password" className="colored-text">
-                            Forgot your password?
-                        </Link>
-                    </div>
-
                     {/* Sign In Button */}
                     <button type="submit" className="btn loginbtn-primary btn-lg w-100">
                         Sign in

@@ -11,7 +11,7 @@ interface ProfileData {
 }
 
 const ProfilePage = () => {
-    const { username } = useParams<{username? : string }>(); // Get the username from the URL parameters
+    const { username } = useParams<{ username?: string }>(); // Get the username from the URL parameters
 
     // State variables
     const [userData, setUserData] = useState<ProfileDto | null>(null);
@@ -27,6 +27,10 @@ const ProfilePage = () => {
     const [successMessage, setSuccessMessage] = useState('');
     const [newImage, setNewImage] = useState<File | null>(null);
 
+    // New error states
+    const [profileError, setProfileError] = useState('');
+    const [actionError, setActionError] = useState('');
+
     const fetchProfileData = async () => {
         try {
             const url = username ? `http://localhost:5094/Profile/${username}` : 'http://localhost:5094/Profile/';
@@ -40,10 +44,16 @@ const ProfilePage = () => {
             });
 
             if (!response.ok) {
-                throw new Error(`Bad response from server: ${response.status} ${response.statusText}`);
+                const errorData = await response.json();
+                setProfileError(errorData.message || `Bad response from server: ${response.status} ${response.statusText}`);
+                setUserData(null);
+                setPosts(null);
+                setIsCurrentUserProfile(false);
+                setIsFollowing(false);
+                return;
             }
 
-            const profileData : ProfileData = await response.json();
+            const profileData: ProfileData = await response.json();
             console.log(profileData);
 
             setUserData(profileData.profile);
@@ -51,16 +61,21 @@ const ProfilePage = () => {
 
             setIsCurrentUserProfile(profileData.profile.isCurrentUserProfile);
             setIsFollowing(profileData.profile.isFollowing);
+            setProfileError(''); // Clear any previous errors
 
-        } catch (error) {
+        } catch (error: any) {
             console.error('Error fetching profile data', error);
-            // Redirect to error page or handle error
+            setProfileError('An unexpected error occurred while fetching profile data.');
+            setUserData(null);
+            setPosts(null);
+            setIsCurrentUserProfile(false);
+            setIsFollowing(false);
         }
     };
 
-    // Fetch user data when component mounts
+    // Fetch user data when component mounts or when dependencies change
     useEffect(() => {
-        if (!authload) {
+        if (!authload && isAuthenticated) { // Ensure only fetching when auth is loaded and user is authenticated
             fetchProfileData().then(r => r);
         }
         // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -74,19 +89,23 @@ const ProfilePage = () => {
                     'Authorization': `Bearer ${token}`,
                     'Content-Type': 'application/json',
                 },
-                body: JSON.stringify(userData?.username),
+                body: JSON.stringify(userData?.username), // Ensure backend expects an object
             });
 
             if (!response.ok) {
-                throw new Error('Result not ok');
+                const errorData = await response.json();
+                setActionError(errorData.message || 'Failed to follow the user.');
+                return;
             }
 
             setIsFollowing(true);
+            setActionError(''); // Clear any previous errors
             // Update followers count locally, assuming the response is successful
-            userData!.followersCount++;
+            setUserData(prev => prev ? { ...prev, followersCount: prev.followersCount + 1 } : prev);
 
-        } catch (error) {
+        } catch (error: any) {
             console.error('Error following user', error);
+            setActionError('An unexpected error occurred while trying to follow the user.');
         }
     };
 
@@ -98,20 +117,23 @@ const ProfilePage = () => {
                     'Authorization': `Bearer ${token}`,
                     'Content-Type': 'application/json',
                 },
-                body: JSON.stringify(userData?.username),
+                body: JSON.stringify(userData?.username), // Ensure backend expects an object
             });
 
             if (!response.ok) {
-                throw new Error('Network response was not ok');
+                const errorData = await response.json();
+                setActionError(errorData.message || 'Failed to unfollow the user.');
+                return;
             }
 
             setIsFollowing(false);
+            setActionError(''); // Clear any previous errors
             // Update followers count locally, assuming the response is successful
-            userData!.followersCount--;
+            setUserData(prev => prev ? { ...prev, followersCount: prev.followersCount - 1 } : prev);
 
-        } catch (error) {
-
+        } catch (error: any) {
             console.error('Error unfollowing user', error);
+            setActionError('An unexpected error occurred while trying to unfollow the user.');
         }
     };
 
@@ -136,7 +158,8 @@ const ProfilePage = () => {
             if (!response.ok) {
                 const errorData = await response.json();
                 setErrorMessage(errorData.message || 'Failed to update the profile');
-                }
+                return;
+            }
             setSuccessMessage('Profile updated successfully');
 
             await fetchProfileData(); // Fetch the updated profile data
@@ -147,7 +170,7 @@ const ProfilePage = () => {
             }, 1500);
 
         }
-        catch (error) {
+        catch (error: any) {
             setErrorMessage('An error occurred while updating the profile');
         }
     }
@@ -173,6 +196,18 @@ const ProfilePage = () => {
     return (
         <div className="profile-page bg-transparent text-light py-5" style={{ backgroundColor: '#222', color: '#fff' }}>
             <div className="container">
+                {/* Error Messages */}
+                {isAuthenticated && profileError && (
+                    <div className="alert alert-danger" role="alert">
+                        {profileError}
+                    </div>
+                )}
+                {isAuthenticated && actionError && (
+                    <div className="alert alert-danger" role="alert">
+                        {actionError}
+                    </div>
+                )}
+
                 {/* Profile Section */}
                 <div className="row align-items-center justify-content-center mb-5">
                     {/* Profile Image */}
@@ -226,24 +261,24 @@ const ProfilePage = () => {
                         </p>
 
                         <div className="d-flex justify-content-center justify-content-md-between mb-3 post-info-container">
-                          <span
-                              className="post-info"
-                              style={{ fontSize: 'clamp(1em, 2vw, 1.4em)', color: '#bbb', margin: '0 1em' }}
-                          >
-                            {posts ? posts.length : 0} Posts
-                          </span>
                             <span
                                 className="post-info"
                                 style={{ fontSize: 'clamp(1em, 2vw, 1.4em)', color: '#bbb', margin: '0 1em' }}
                             >
-                            {userData ? userData.followersCount : 0} Followers
-                          </span>
+                                {posts ? posts.length : 0} Posts
+                            </span>
                             <span
                                 className="post-info"
                                 style={{ fontSize: 'clamp(1em, 2vw, 1.4em)', color: '#bbb', margin: '0 1em' }}
                             >
-                            {userData ? userData.followingCount : 0} Following
-                          </span>
+                                {userData ? userData.followersCount : 0} Followers
+                            </span>
+                            <span
+                                className="post-info"
+                                style={{ fontSize: 'clamp(1em, 2vw, 1.4em)', color: '#bbb', margin: '0 1em' }}
+                            >
+                                {userData ? userData.followingCount : 0} Following
+                            </span>
                         </div>
 
                         {/* Buttons Section */}
@@ -255,7 +290,7 @@ const ProfilePage = () => {
                                         <button
                                             className="btn loginbtn-primary btn-lg me-3 w-50"
                                             onClick={handleOpenEditModal}
-                                            style={{width: '50%'}}
+                                            style={{ width: '50%' }}
                                         >
                                             Edit Profile
                                         </button>
@@ -332,7 +367,7 @@ const ProfilePage = () => {
                                         className="btn btn-link p-0"
                                         data-bs-toggle="modal"
                                         data-bs-target={`#postModal-${post.postId}`}
-                                        style={{border: 'none', background: 'none'}}
+                                        style={{ border: 'none', background: 'none' }}
                                     >
                                         <img
                                             src={
@@ -376,6 +411,7 @@ const ProfilePage = () => {
                     <p>No posts to show</p>
                 )}
             </div>
+
             {showEditModal && (
                 <div
                     className="modal fade show"
@@ -454,7 +490,6 @@ const ProfilePage = () => {
                                                 Save Changes
                                             </button>
                                         </div>
-
                                         {errorMessage && <div className="alert alert-danger">{errorMessage}</div>}
                                         {successMessage && <div className="alert alert-success">{successMessage}</div>}
                                     </form>
@@ -466,6 +501,7 @@ const ProfilePage = () => {
             )}
         </div>
     );
+
 };
 
 export default ProfilePage;
