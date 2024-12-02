@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import PostComponent from "../components/PostComponent";
-import { PostDto } from '../models'; // Ensure this path is correct
-import { useAuth} from "../context/AuthContext";
+import PostComponent from "../../Shared/PostComponent";
+import { PostDto } from '../../Models'; // Ensure this path is correct
+import { useAuth} from "../../Context/AuthContext";
 
 const HomePage: React.FC = () => {
     const [posts, setPosts] = useState<PostDto[]>([]);

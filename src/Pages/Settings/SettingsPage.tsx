@@ -1,10 +1,10 @@
 import React from "react";
 import {NavLink, Route, Routes, useNavigate, Navigate} from "react-router-dom";
-import ProfileComponent from "../components/ProfileComponent";
-import EmailComponent from "../components/EmailComponent";
-import PasswordComponent from "../components/PasswordComponent";
-import PersonalDataComponent from "../components/PersonalDataComponent";
-import { useAuth } from "../context/AuthContext";
+import ProfileComponent from "./ProfileComponent";
+import EmailComponent from "./EmailComponent";
+import PasswordComponent from "./PasswordComponent";
+import PersonalDataComponent from "./PersonalDataComponent";
+import { useAuth } from "../../Context/AuthContext";
 
 const SettingsPage = () => {
     const { token, logout } = useAuth();

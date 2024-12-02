@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom"; // Import Link and useNavigate
 import "./LoginPage.css"; // Custom styling
-import { useAuth } from "../context/AuthContext";
+import { useAuth } from "../../Context/AuthContext";
 
 const LoginPage: React.FC = () => {
     const [emailOrUsername, setEmailOrUsername] = useState(""); // State for email/username input

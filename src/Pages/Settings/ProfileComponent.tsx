@@ -1,5 +1,5 @@
 import React, {FormEvent, useEffect, useState} from "react";
-import {useAuth} from "../context/AuthContext";
+import {useAuth} from "../../Context/AuthContext";
 
 const ProfileComponent = () => {
     // State to store form data

@@ -1,7 +1,7 @@
 import React from 'react';
 import './LoginMain.css';
 import {Link} from "react-router-dom";
-import WelcomeVector from '../assets/images/kage_welcome_vector.png';
+import WelcomeVector from '../../assets/images/kage_welcome_vector.png';
 
 const LoginMain: React.FC = () => {
     return (

@@ -1,16 +1,16 @@
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-router-dom';
-import Navbar from './components/Navbar';
-import SideMenu from './components/SideMenu';
-import HomePage from './pages/HomePage';
-import LoginMain from './pages/LoginMain';
-import LoginPage from './pages/LoginPage';
-import RegisterPage from './pages/RegisterPage';
-import CreatePost from './pages/CreatePost';
-import SettingsPage from './pages/SettingsPage';
-import EditPostPage from './pages/EditPostPage';
-import ProfilePage from "./pages/ProfilePage";
-import SavedPostsPage from "./pages/SavedPostsPage";
+import Navbar from './Shared/Navbar';
+import SideMenu from './Shared/SideMenu';
+import HomePage from './Pages/Home/HomePage';
+import LoginMain from './Pages/Authentication/LoginMain';
+import LoginPage from './Pages/Authentication/LoginPage';
+import RegisterPage from './Pages/Authentication/RegisterPage';
+import CreatePost from './Pages/Post/CreatePost';
+import SettingsPage from './Pages/Settings/SettingsPage';
+import EditPostPage from './Pages/Post/EditPostPage';
+import ProfilePage from "./Pages/Profile/ProfilePage";
+import SavedPostsPage from "./Pages/Post/SavedPostsPage";
 
 const App: React.FC = () => {
     const location = useLocation(); // Hook for checking the current route
